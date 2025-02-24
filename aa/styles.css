@@ -1,0 +1,115 @@
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+/* Cabeçalho */
+header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background-color: white; /* Cabeçalho branco */
+    color: #333;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Ícone do menu */
+.menu {
+    margin-right: auto;
+}
+
+#menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+}
+
+/* Sidebar */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px; /* Inicia escondido */
+    width: 250px;
+    height: 100vh;
+    background: white; /* Sidebar branca */
+    color: #333;
+    padding-top: 20px;
+    transition: left 0.3s ease-in-out;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Versão compacta */
+.sidebar a {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    border-bottom: 1px solid #ddd;
+    transition: 0.3s;
+}
+
+/* Versão expandida */
+.sidebar:hover {
+    left: 0; /* Quando o mouse passa, ele aparece */
+    width: 300px;
+}
+
+.sidebar:hover a {
+    justify-content: flex-start; /* Ajusta o conteúdo quando expande */
+}
+
+.sidebar a i {
+    font-size: 20px;
+    margin-right: 10px;
+}
+
+/* Conteúdo Principal */
+main {
+    text-align: center; /* Centralizando o texto */
+    padding: 50px 20px;
+    background-color: transparent; /* Removendo o fundo branco */
+    border-radius: 8px;
+}
+
+/* Botões de Login e Registrar */
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Centralizando os botões */
+}
+
+.btn {
+    background: #007BFF; /* Botões azuis */
+    border: none;
+    padding: 8px 15px;
+    margin: 0 5px;
+    cursor: pointer;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+/* Estilos ao passar o mouse nos botões */
+.btn:hover {
+    background: #0056b3; /* Azul mais escuro ao passar o mouse */
+}
+
+#menu-icon {
+    font-size: 24px;
+    cursor: pointer;
+    padding: 10px;
+    color: black; /* Tornando as linhas pretas */
+}
+
+#menu-icon i {
+    color: black; /* Garantindo que as linhas internas sejam pretas */
+}
