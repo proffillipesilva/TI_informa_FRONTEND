@@ -26,12 +26,10 @@ const Interesses = () => {
         <img src={logo} alt="Logo" className={styles.logo} />
       </div>
 
-      <div className={styles.container} style={{ justifyContent: 'center' }}>
+      <div className={styles.container}>
         <div className={styles.secaoFormulario}>
           <div className={styles.cartao}>
-
             <h2 className={styles.titulo}>Interesses</h2>
-
             <p className={styles.textoBoasVindas}>
               Bem-vindo! Escolha seus interesses para recomendarmos os melhores cursos para você
             </p>

@@ -50,7 +50,7 @@ const Inicial = () => {
 
       <div className={styles.container}>
         <div className={styles.imageSection}>
-          <img src={sampleImage} alt="Descrição da imagem" className={styles.image} />
+          <img src={sampleImage} className={styles.image} />
         </div>
 
         <div className={styles.formSection}>
