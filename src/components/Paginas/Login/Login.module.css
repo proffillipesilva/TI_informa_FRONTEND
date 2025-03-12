@@ -44,7 +44,6 @@
     transform: translateX(20px);
   }
   
-  /* Container do cabeçalho */
   .header {
     position: fixed;
     top: 0;
@@ -71,7 +70,6 @@
     z-index: 1001;
   }
   
-  /* Container principal */
   .container {
     display: flex;
     align-items: center;
@@ -98,6 +96,7 @@
     align-items: center;
   }
   
+     /* Formulario Login */
   .card {
     background-color: #f5f5f5;
     padding: 105px 30px;
@@ -122,10 +121,9 @@
     border-radius: 4px;
     position: relative;
     top: 11px;
-    caret-color: auto; /* Faz o cursor piscar normalmente */
+    caret-color: auto; 
   }
   
-  /* Campo de senha */
   .passwordContainer {
     position: relative;
     width: 100%;
@@ -213,15 +211,15 @@
   .registerLink {
     background: none;
     border: none;
-    color: #007bff; /* Ou a cor que você quer */
+    color: #007bff;
     cursor: pointer;
     text-decoration: underline;
     font-size: 1rem;
-    outline: none; /* Remove o contorno ao focar */
+    outline: none;
   }
   
   .registerLink:focus {
-    outline: none; /* Garante que não apareça ao clicar ou focar */
+    outline: none;
   }
   
   
@@ -238,7 +236,7 @@
   .container, .imageSection, .formSection, .card, .register {
     caret-color: transparent;
   }
-  /* Barra superior e inferior */
+
 .bar {
     background-color: #8CA8C2;
     height: 80px;
@@ -284,7 +282,6 @@
     transform: translateX(20px);
   }
   
-  /* Container do cabeçalho */
   .header {
     position: fixed;
     top: 0;
@@ -311,7 +308,6 @@
     z-index: 1001;
   }
   
-  /* Container principal */
   .container {
     display: flex;
     align-items: center;
@@ -362,10 +358,9 @@
     border-radius: 4px;
     position: relative;
     top: 11px;
-    caret-color: auto; /* Faz o cursor piscar normalmente */
+    caret-color: auto;
   }
   
-  /* Campo de senha */
   .passwordContainer {
     position: relative;
     width: 100%;
@@ -437,6 +432,7 @@
     text-decoration: underline;
   }
   
+  /* Cadastre-se em baixo do login*/
   .register {
     background-color: #f5f5f5;
     padding: 21px;
@@ -453,15 +449,15 @@
   .registerLink {
     background: none;
     border: none;
-    color: #007bff; /* Ou a cor que você quer */
+    color: #007bff;
     cursor: pointer;
     text-decoration: underline;
     font-size: 1rem;
-    outline: none; /* Remove o contorno ao focar */
+    outline: none;
   }
   
   .registerLink:focus {
-    outline: none; /* Garante que não apareça ao clicar ou focar */
+    outline: none;
   }
   
   
