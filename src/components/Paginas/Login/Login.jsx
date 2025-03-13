@@ -63,7 +63,7 @@ const Login = () => {
                   name="password"
                   placeholder="Senha"
                   value={formData.password}
-                  onChange={Envio}
+                  onChange={Mudanca}
                   className={styles.input}
                   required
                 />
