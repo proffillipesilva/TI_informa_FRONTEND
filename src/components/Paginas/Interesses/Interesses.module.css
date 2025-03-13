@@ -122,7 +122,7 @@
   }
   
   .botaoInteresse {
-    background-color: #8CA8C2;
+    background-color: #46799E;
     color: white;
     border: none;
     padding: 10px 20px;
@@ -132,7 +132,7 @@
   }
   
   .botaoInteresse:hover {
-    background-color: #5a6d80;
+    background-color: #46799E;
   }
   
   .linhaBotoes {

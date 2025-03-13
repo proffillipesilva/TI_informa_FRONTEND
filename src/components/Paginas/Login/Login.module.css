@@ -237,7 +237,7 @@
     caret-color: transparent;
   }
 
-.bar {
+  .bar {
     background-color: #8CA8C2;
     height: 80px;
     width: 100%;
@@ -385,7 +385,7 @@
   .button {
     width: 100%;
     padding: 13.5px;
-    background-color: #6B7F95;
+    background-color: #1F577C;
     color: white;
     border: none;
     border-radius: 4px;
