@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import styles from './Login.module.css';
 import Layout from '../../Layout/Layout';
-import { auth, googleProvider } from '../../../../firebaseConfig';
+import { auth, googleProvider } from '../../../firebaseConfig';
 import { signInWithPopup } from 'firebase/auth'; 
 import axios from '../../../api/axios-config';
 
