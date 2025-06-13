@@ -17,8 +17,19 @@ import RedefinirSenha from '../Paginas/RedefinirSenha/RedefinirSenha';
 import ErrorBoundary from './ErrorBoundary';
 import AdminPage from '../Paginas/Admin/AdminPage';
 import PlaylistVideo from '../Paginas/PlaylistVideo/PlaylistVideo';
+import {myGetToken, onMessageListener} from "../../firebaseConfig";
 
 function App() {
+    const [, setTokenFound] = React.useState(false);
+     myGetToken(setTokenFound);
+
+    onMessageListener()
+        .then((payload) => {
+            console.log('Foreground message received:', payload);
+        })
+        .catch((err) => {
+            console.log('Error in onMessageListener:', err);
+        });
     return (
         <Router>
             <ErrorBoundary>

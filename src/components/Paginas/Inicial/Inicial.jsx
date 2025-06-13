@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import imagem from './Foto.jpg'
 import styles from './Inicial.module.css';
-import { auth, googleProvider } from '../../../../firebaseConfig';
+import { auth, googleProvider } from '../../../firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
 import axios from '../../../api/axios-config';
 import Layout from '../../Layout/Layout'; 
