@@ -1,18 +1,20 @@
-.barra {
-  background-color: #8CA8C2;
-  height: 80px;
-  width: 100%;
+.cabecalho {
   position: fixed;
-  left: 0;
+  top: 0;
+  width: 100%;
+  height: 80px;
+  background-color: #8ca8c2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
   z-index: 1000;
 }
 
-.barra.superior {
-  top: 0;
-}
-
-.barra.inferior {
-  bottom: 0;
+.errorMessage {
+  color: red;
+  margin-bottom: 10px;
+  font-size: 1rem;
 }
 
 .botaoMenu {
@@ -22,6 +24,7 @@
   color: black;
   font-size: 24px;
   padding: 0;
+  transform: translateX(20px);
 }
 
 .ponto {
@@ -30,20 +33,6 @@
   caret-color: transparent;
   font-size: 24px;
   margin-bottom: 3px;
-  transform: translateX(20px);
-}
-
-.cabecalho {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  height: 80px;
-  background-color: #8CA8C2;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 20px;
-  z-index: 1000;
 }
 
 .tituloCabecalho {
@@ -56,82 +45,1315 @@
 .logo {
   width: 126.5px;
   height: auto;
-  z-index: 1001;
 }
 
-.container {
+.barraPesquisaFiltros {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  min-height: calc(100vh - 160px);
-  padding: 20px;
-  margin-top: 80px;
-  margin-bottom: 80px;
-  overflow: hidden;
+  justify-content: space-between;
+  margin-top: 100px;
+  padding: 0 20px;
+  border-radius: 15px;
+  transform: translateX(-220px);
 }
 
-.secaoFormulario {
+.barraPesquisaContainer {
+  position: relative;
+  width: 50%;
+  margin-left: 880px;
+}
+
+.barraPesquisa {
+  width: 55%;
+  padding: 10px 40px 10px 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+}
+
+.iconePesquisa {
+  position: absolute;
+  right: 380px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #888787;
+}
+
+.filtros {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-end;
 }
 
-.cartao {
-  background-color: #f5f5f5;
-  padding: 50px 30px;
-  border-radius: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  width: 1500px;
-  text-align: center;
-  margin-bottom: 30px;
+.tituloFiltros {
+  font-size: 16px;
+  margin-bottom: 5px;
+  transform: translateX(-140px);
 }
 
-.titulo {
-  font-size: 38px;
-  margin-bottom: 20px;
-}
-
-.textoBoasVindas {
-  font-size: 20px;
-  margin-bottom: 40px;
+.selectCategorias {
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  caret-color: transparent;
 }
 
 .secao {
-  text-align: left;
-  margin-bottom: 40px;
+  padding: 20px;
 }
 
 .tituloSecao {
   font-size: 22px;
   font-weight: bold;
-  display: inline-block;
+  margin-bottom: 20px;
 }
 
-.linha {
-  display: inline-block;
-  width: calc(100% - 180px);
-  height: 2px;
-  background-color: #ccc;
-  margin-left: 10px;
+.containerCards {
+  display: flex;
+  justify-content: space-between;
 }
 
-.linhaBotoes {
+.card {
+  width: 23%;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 295px;
+}
+
+.conteudoCard {
+  padding: 20px;
+}
+
+.rodapeCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 20px;
+  background-color: #ffffff;
+  border-top: 1px solid #ccc;
+}
+
+.estrelas {
+  display: flex;
+}
+
+.iconeComentario {
+  font-size: 20px;
+  color: #888787;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+}
+
+.paginaHome {
+  background-color: #f0f0f0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.recommendedVideos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  padding: 20px 0;
+}
+
+.recommendedVideoCard {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.recommendedVideoCard:hover {
+  transform: scale(1.02);
+}
+
+.thumbnailContainer {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; 
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.videoDuration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.recommendedVideoInfo {
+  padding: 8px 0;
+}
+
+.recommendedVideoTitle {
+  margin: 0;
+  font-size: 16px;
+  color: #333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.recommendedVideoCreator {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.recommendedVideoStats {
+  margin: 0;
+  font-size: 12px;
+  color: #888;
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.errorMessage {
+  color: red;
+  padding: 20px;
+  text-align: center;
+}
+
+.noVideosMessage {
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+.recommendedVideos {
+  display: flex;
+  gap: 20px;
+  padding: 10px 0;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: auto;
+  max-width: calc( (360px * 5) + (20px * 4) );
+  margin: 0 auto;
+}
+
+.carouselContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  justify-content: center;
+  z-index: 5;
+}
+
+.carouselButton {
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white; 
+  border: none;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px; 
   display: flex;
   justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-}
-
-.botaoInteresse {
-  background-color: #8CA8C2;
-  color: white;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-size: 18px;
+  align-items: center;
   cursor: pointer;
+  z-index: 10; 
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 2rem; 
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+  opacity: 0;
+  pointer-events: none; 
 }
 
-.botaoInteresse:hover {
-  background-color: #5a6d80;
+.carouselButton:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}
+
+.carouselButton svg {
+  color: white;
+  fill: white;
+  font-size: 2rem;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.carouselContainer:hover .carouselButton {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+
+.prevButton {
+  left: -15px;
+  transform: translateY(-40px);
+}
+
+.nextButton {
+  right: -15px;
+  transform: translateY(-40px);
+}
+
+.recommendedVideos {
+  display: flex;
+  gap: 20px;
+  padding: 10px 0;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  height: auto;
+  max-width: calc( (360px * 5) + (20px * 4) );
+  margin: 0 auto;
+}
+
+.recommendedVideoCard {
+  min-width: 360px;
+  max-width: 360px;
+  flex-shrink: 0;
+  margin-bottom: 20px;
+}
+
+.thumbnailContainer {
+  width: 100%;
+  height: 200px;
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.thumbnail {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.videoDuration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+.noVideosMessage {
+  text-align: center;
+  width: 100%;
+  padding: 20px;
+  color: #888;
+}
+
+.tituloSecao,
+.card {
+  caret-color: transparent;
+}
+
+@media (max-width: 320px) {
+  .cabecalho {
+    height: 60px;
+    padding: 0 10px;
+  }
+
+  .botaoMenu {
+    font-size: 20px;
+    transform: translateX(10px);
+  }
+
+  .tituloCabecalho {
+    font-size: 20px;
+    margin-left: auto;
+    margin-right: 10px;
+  }
+
+  .logo {
+    width: 80px;
+  }
+
+  .barraPesquisaFiltros {
+    flex-direction: column;
+    margin-top: 70px;
+    padding: 0 10px;
+    transform: translateX(0);
+  }
+
+  .barraPesquisaContainer {
+    width: 100%;
+    margin-left: 0;
+    margin-bottom: 15px;
+  }
+
+  .barraPesquisa {
+    width: 100%;
+    padding: 8px 30px 8px 8px;
+    font-size: 14px;
+  }
+
+  .iconePesquisa {
+    right: 10px;
+    font-size: 18px;
+  }
+
+  .filtros {
+    align-items: center;
+    width: 100%;
+  }
+
+  .tituloFiltros {
+    font-size: 14px;
+    transform: translateX(0);
+    margin-bottom: 8px;
+  }
+
+  .selectCategorias {
+    padding: 8px;
+    font-size: 14px;
+    width: 100%;
+  }
+
+  .secao {
+    padding: 10px;
+  }
+
+  .tituloSecao {
+    font-size: 18px;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  .containerCards {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .card {
+    width: 90%;
+    margin-bottom: 20px;
+    height: auto;
+  }
+
+  .conteudoCard {
+    padding: 15px;
+  }
+
+  .rodapeCard {
+    padding: 15px;
+  }
+
+  .iconeComentario {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 321px) and (max-width: 480px) {
+  .cabecalho {
+    height: 65px;
+    padding: 0 15px;
+  }
+
+  .botaoMenu {
+    font-size: 22px;
+    transform: translateX(15px);
+  }
+
+  .tituloCabecalho {
+    font-size: 24px;
+    margin-left: auto;
+    margin-right: 15px;
+  }
+
+  .logo {
+    width: 90px;
+  }
+
+  .barraPesquisaFiltros {
+    flex-direction: column;
+    margin-top: 80px;
+    padding: 0 15px;
+    transform: translateX(0);
+  }
+
+  .barraPesquisaContainer {
+    width: 90%;
+    margin-left: 0;
+    margin-bottom: 20px;
+  }
+
+  .barraPesquisa {
+    width: 100%;
+    padding: 9px 35px 9px 9px;
+    font-size: 15px;
+  }
+
+  .iconePesquisa {
+    right: 15px;
+    font-size: 19px;
+  }
+
+  .filtros {
+    align-items: center;
+    width: 90%;
+  }
+
+  .tituloFiltros {
+    font-size: 15px;
+    transform: translateX(0);
+    margin-bottom: 10px;
+  }
+
+  .selectCategorias {
+    padding: 9px;
+    font-size: 15px;
+    width: 100%;
+  }
+
+  .secao {
+    padding: 15px;
+  }
+
+  .tituloSecao {
+    font-size: 20px;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .containerCards {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .card {
+    width: 80%;
+    margin-bottom: 20px;
+    height: auto;
+  }
+
+  .conteudoCard {
+    padding: 18px;
+  }
+
+  .rodapeCard {
+    padding: 18px;
+  }
+
+  .iconeComentario {
+    font-size: 19px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .cabecalho {
+    height: 70px;
+    padding: 0 20px;
+  }
+
+  .botaoMenu {
+    font-size: 24px;
+    transform: translateX(20px);
+  }
+
+  .tituloCabecalho {
+    font-size: 28px;
+    margin-left: auto;
+    margin-right: 20px;
+  }
+
+  .logo {
+    width: 100px;
+  }
+
+  .barraPesquisaFiltros {
+    flex-direction: row;
+    margin-top: 90px;
+    padding: 0 20px;
+    transform: translateX(0);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .barraPesquisaContainer {
+    width: 70%;
+    margin-left: 0;
+    margin-bottom: 0;
+  }
+
+  .barraPesquisa {
+    width: 100%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+  }
+
+  .iconePesquisa {
+    right: 15px;
+    font-size: 20px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+    width: 25%;
+  }
+
+  .tituloFiltros {
+    font-size: 16px;
+    transform: translateX(0);
+    margin-bottom: 5px;
+  }
+
+  .selectCategorias {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .secao {
+    padding: 20px;
+  }
+
+  .tituloSecao {
+    font-size: 22px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .containerCards {
+    flex-wrap: wrap;
+    justify-content: space-around;
+  }
+
+  .card {
+    width: 45%;
+    margin-bottom: 20px;
+    height: 280px;
+  }
+
+  .conteudoCard {
+    padding: 20px;
+  }
+
+  .rodapeCard {
+    padding: 20px;
+  }
+
+  .iconeComentario {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .cabecalho {
+    height: 75px;
+    padding: 0 25px;
+  }
+
+  .botaoMenu {
+    font-size: 26px;
+    transform: translateX(25px);
+  }
+
+  .tituloCabecalho {
+    font-size: 30px;
+    margin-left: auto;
+    margin-right: 25px;
+  }
+
+  .logo {
+    width: 110px;
+  }
+
+  .barraPesquisaFiltros {
+    margin-top: 95px;
+    padding: 0 25px;
+    transform: translateX(0);
+    justify-content: space-between;
+  }
+
+  .barraPesquisaContainer {
+    width: 60%;
+    margin-left: 0;
+  }
+
+  .barraPesquisa {
+    width: 90%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+  }
+
+  .iconePesquisa {
+    right: 15%;
+    font-size: 20px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+    width: 30%;
+  }
+
+  .tituloFiltros {
+    font-size: 16px;
+    transform: translateX(0);
+  }
+
+  .selectCategorias {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .secao {
+    padding: 25px;
+  }
+
+  .tituloSecao {
+    font-size: 24px;
+    margin-bottom: 25px;
+  }
+
+  .containerCards {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .card {
+    width: 48%;
+    margin-bottom: 25px;
+    height: 290px;
+  }
+
+  .conteudoCard {
+    padding: 20px;
+  }
+
+  .rodapeCard {
+    padding: 20px;
+  }
+
+  .iconeComentario {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .cabecalho {
+    height: 80px;
+    padding: 0 30px;
+  }
+
+  .botaoMenu {
+    font-size: 28px;
+    transform: translateX(30px);
+  }
+
+  .tituloCabecalho {
+    font-size: 32px;
+    margin-left: auto;
+    margin-right: 30px;
+  }
+
+  .logo {
+    width: 120px;
+  }
+
+  .barraPesquisaFiltros {
+    margin-top: 100px;
+    padding: 0 30px;
+    transform: translateX(0);
+    justify-content: space-between;
+  }
+
+  .barraPesquisaContainer {
+    width: 55%;
+    margin-left: 0;
+  }
+
+  .barraPesquisa {
+    width: 90%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+  }
+
+  .iconePesquisa {
+    right: 10%;
+    font-size: 20px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+    width: 35%;
+  }
+
+  .tituloFiltros {
+    font-size: 16px;
+    transform: translateX(0);
+  }
+
+  .selectCategorias {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .secao {
+    padding: 30px;
+  }
+
+  .tituloSecao {
+    font-size: 26px;
+    margin-bottom: 30px;
+  }
+
+  .containerCards {
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .card {
+    width: 48%;
+    margin-bottom: 30px;
+    height: 300px;
+  }
+
+  .conteudoCard {
+    padding: 20px;
+  }
+
+  .rodapeCard {
+    padding: 20px;
+  }
+
+  .iconeComentario {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1201px) and (max-width: 1440px) {
+  .cabecalho {
+    height: 80px;
+    padding: 0 40px;
+  }
+
+  .botaoMenu {
+    font-size: 28px;
+    transform: translateX(30px);
+  }
+
+  .tituloCabecalho {
+    font-size: 32px;
+    margin-left: auto;
+    margin-right: 40px;
+  }
+
+  .logo {
+    width: 126.5px;
+  }
+
+  .barraPesquisaFiltros {
+    margin-top: 100px;
+    padding: 0 40px;
+    transform: translateX(0);
+    justify-content: space-between;
+  }
+
+  .barraPesquisaContainer {
+    width: 50%;
+    margin-left: 0;
+  }
+
+  .barraPesquisa {
+    width: 80%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+  }
+
+  .iconePesquisa {
+    right: 15%;
+    font-size: 20px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+    width: 40%;
+  }
+
+  .tituloFiltros {
+    font-size: 16px;
+    transform: translateX(0);
+  }
+
+  .selectCategorias {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+  }
+
+  .secao {
+    padding: 40px;
+  }
+
+  .tituloSecao {
+    font-size: 28px;
+    margin-bottom: 30px;
+  }
+
+  .containerCards {
+    justify-content: space-between;
+  }
+
+  .card {
+    width: 24%;
+    height: 300px;
+  }
+
+  .conteudoCard {
+    padding: 20px;
+  }
+
+  .rodapeCard {
+    padding: 20px;
+  }
+
+  .iconeComentario {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1441px) and (max-width: 1919px) {
+  .cabecalho {
+    height: 80px;
+    padding: 0 20px;
+  }
+
+  .botaoMenu {
+    font-size: 24px;
+    transform: translateX(20px);
+  }
+
+  .tituloCabecalho {
+    font-size: 34px;
+    margin-left: 1000px;
+    margin-right: 20px;
+  }
+
+  .logo {
+    width: 126.5px;
+  }
+
+  .barraPesquisaFiltros {
+    margin-top: 100px;
+    padding: 0 20px;
+    transform: translateX(-100px);
+  }
+
+  .barraPesquisaContainer {
+    width: 50%;
+    margin-left: 600px;
+  }
+
+  .barraPesquisa {
+    width: 55%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+  }
+
+  .iconePesquisa {
+    right: 320px;
+    font-size: 20px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+  }
+
+  .tituloFiltros {
+    font-size: 16px;
+    transform: translateX(-100px);
+  }
+
+  .selectCategorias {
+    padding: 10px;
+    font-size: 16px;
+  }
+
+  .secao {
+    padding: 20px;
+  }
+
+  .tituloSecao {
+    font-size: 22px;
+    margin-bottom: 20px;
+  }
+
+  .containerCards {
+    justify-content: space-between;
+  }
+
+  .card {
+    width: 23%;
+    height: 295px;
+  }
+
+  .conteudoCard {
+    padding: 20px;
+  }
+
+  .rodapeCard {
+    padding: 20px;
+  }
+
+  .estrelas {
+    display: flex;
+  }
+
+  .iconeComentario {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 1920px) and (max-width: 1920px) {
+  .cabecalho {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    height: 80px;
+    background-color: #8ca8c2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+  }
+
+  .botaoMenu {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: black;
+    font-size: 24px;
+    padding: 0;
+    transform: translateX(20px);
+  }
+
+  .ponto {
+    display: block;
+    line-height: 0.4;
+    caret-color: transparent;
+    font-size: 24px;
+    margin-bottom: 3px;
+  }
+
+  .tituloCabecalho {
+    font-size: 34px;
+    font-weight: bold;
+    color: black;
+    margin-left: 1560px;
+  }
+
+  .logo {
+    width: 126.5px;
+    height: auto;
+  }
+
+  .barraPesquisaFiltros {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 100px;
+    padding: 0 20px;
+    border-radius: 15px;
+    transform: translateX(-220px);
+  }
+
+  .barraPesquisaContainer {
+    position: relative;
+    width: 50%;
+    margin-left: 880px;
+  }
+
+  .barraPesquisa {
+    width: 55%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
+  }
+
+  .iconePesquisa {
+    position: absolute;
+    right: 380px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #888787;
+  }
+
+  .filtros {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .tituloFiltros {
+    font-size: 16px;
+    margin-bottom: 5px;
+    transform: translateX(-140px);
+  }
+
+  .selectCategorias {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    caret-color: transparent;
+  }
+
+  .secao {
+    padding: 20px;
+  }
+
+  .tituloSecao {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+
+  .containerCards {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .card {
+    width: 23%;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 295px;
+  }
+
+  .conteudoCard {
+    padding: 20px;
+  }
+
+  .rodapeCard {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px;
+    background-color: #ffffff;
+    border-top: 1px solid #ccc;
+  }
+
+  .estrelas {
+    display: flex;
+  }
+
+  .iconeComentario {
+    font-size: 20px;
+    color: #888787;
+  }
+}
+
+@media (min-width: 1921px) and (max-width: 2560px) {
+  .cabecalho {
+    height: 90px;
+    padding: 0 30px;
+  }
+
+  .botaoMenu {
+    font-size: 28px;
+    transform: translateX(30px);
+  }
+
+  .tituloCabecalho {
+    font-size: 38px;
+    margin-left: 1800px; 
+  }
+
+  .logo {
+    width: 140px;
+  }
+
+  .barraPesquisaFiltros {
+    margin-top: 110px;
+    padding: 0 30px;
+    transform: translateX(-250px);
+  }
+
+  .barraPesquisaContainer {
+    width: 55%;
+    margin-left: 1000px; 
+  }
+
+  .barraPesquisa {
+    width: 60%;
+    padding: 12px 45px 12px 12px;
+    font-size: 18px;
+  }
+
+  .iconePesquisa {
+    right: 400px; 
+    font-size: 22px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+  }
+
+  .tituloFiltros {
+    font-size: 18px;
+    transform: translateX(-160px);
+  }
+
+  .selectCategorias {
+    padding: 12px;
+    font-size: 18px;
+  }
+
+  .secao {
+    padding: 30px;
+  }
+
+  .tituloSecao {
+    font-size: 26px;
+    margin-bottom: 25px;
+  }
+
+  .containerCards {
+    justify-content: space-around;
+  }
+
+  .card {
+    width: 22%;
+    height: 320px;
+  }
+
+  .conteudoCard {
+    padding: 25px;
+  }
+
+  .rodapeCard {
+    padding: 25px;
+  }
+
+  .iconeComentario {
+    font-size: 22px;
+  }
+}
+
+@media (min-width: 2561px) and (max-width: 3840px) {
+  .cabecalho {
+    height: 100px;
+    padding: 0 40px;
+  }
+
+  .botaoMenu {
+    font-size: 32px;
+    transform: translateX(40px);
+  }
+
+  .tituloCabecalho {
+    font-size: 44px;
+    margin-left: 2500px;
+  }
+
+  .logo {
+    width: 160px;
+  }
+
+  .barraPesquisaFiltros {
+    margin-top: 120px;
+    padding: 0 40px;
+    transform: translateX(-300px);
+  }
+
+  .barraPesquisaContainer {
+    width: 60%;
+    margin-left: 1500px; 
+  }
+
+  .barraPesquisa {
+    width: 65%;
+    padding: 15px 50px 15px 15px;
+    font-size: 20px;
+  }
+
+  .iconePesquisa {
+    right: 500px;
+    font-size: 25px;
+  }
+
+  .filtros {
+    align-items: flex-end;
+  }
+
+  .tituloFiltros {
+    font-size: 20px;
+    transform: translateX(-200px);
+  }
+
+  .selectCategorias {
+    padding: 15px;
+    font-size: 20px;
+  }
+
+  .secao {
+    padding: 40px;
+  }
+
+  .tituloSecao {
+    font-size: 30px;
+    margin-bottom: 30px;
+  }
+
+  .containerCards {
+    justify-content: space-between;
+  }
+
+  .card {
+    width: 20%;
+    height: 350px;
+  }
+
+  .conteudoCard {
+    padding: 30px;
+  }
+
+  .rodapeCard {
+    padding: 30px;
+  }
+
+  .iconeComentario {
+    font-size: 25px;
+  }
 }

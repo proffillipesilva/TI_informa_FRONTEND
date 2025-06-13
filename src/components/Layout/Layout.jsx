@@ -1,51 +1,57 @@
-import React, { useState } from 'react';
-import styles from "../Layout/Layout.module.css";
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './Layout.module.css';
+import logo from './Logo.png';
+import { FaBars, FaTimes } from 'react-icons/fa';
+import { HiAcademicCap, HiLogin, HiKey, HiCreditCard, HiAdjustments, HiUser, HiOutlineAcademicCap } from "react-icons/hi";
 
-const Layout = ({ children, pageTitle }) => {
-  const [sidebarOpen, setAbrir] = useState(false);
+const Menu = () => {
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [isLogged, setIsLogged] = useState(false);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLogged(!!token);
+  }, []);
+
+  const toggleMenu = () => {
+    setMenuAberto(!menuAberto);
+  };
+
+  const navegarPara = (rota) => {
+    navigate(rota);
+    setMenuAberto(false);
+  };
 
   return (
-    <div className={styles.container}>
-      <header className={styles.header}>
-        <div className={styles.menu}>
-          <i
-            id="menu-icon"
-            className={`fas fa-bars ${styles.menuIcon}`}
-            onMouseEnter={() => setAbrir(true)}
-          ></i>
-        </div>
-        <h1>TI Informa</h1>
-        <nav className={styles.nav}>
-          <button className={styles.btn}>Login</button>
-          <button className={styles.btn}>Registrar</button>
-        </nav>
-      </header>
+    <div>
+      <div className={styles.cabecalho}>
 
-      <div
-        id="sidebar"
-        className={`${styles.sidebar} ${sidebarOpen ? styles.sidebarOpen : ''}`}
-        onMouseLeave={() => setAbrir(false)}
-      >
-        <a href="/home">
-          <i className="fas fa-home"></i> Home
-        </a>
-        <a href="/config">
-          <i className="fas fa-cogs"></i> Configurações
-        </a>
-        <a href="/perfil">
-          <i className="fas fa-user"></i> Perfil
-        </a>
-        <a href="/assinatura">
-          <i className="fas fa-credit-card"></i> Assinatura
-        </a>
+        <button className={styles.botaoMenu} onClick={toggleMenu}>
+          {menuAberto ? <FaTimes /> : <FaBars />}
+        </button>
+        <span className={styles.tituloCabecalho}>T.I Informa</span>
+        <img src={logo} alt="Logo" className={styles.logo} />
       </div>
-
-      <main className={styles.main}>
-        <h2>{pageTitle}</h2>
-        {children}
-      </main>
+      <div className={`${styles.menuLateral} ${menuAberto ? styles.menuAberto : ''}`}>
+        <ul>
+          {isLogged && (<li onClick={() => navegarPara('/home')}><HiAcademicCap /> Home</li>
+          )}
+          <li onClick={() => navegarPara('/login')}><HiLogin /> Login</li>
+          {!isLogged && (
+            <li onClick={() => navegarPara('/register')}><HiKey /> Cadastrar</li>
+          )}
+          {isLogged && (<li onClick={() => navegarPara('/assinatura')}><HiCreditCard /> Assinaturas</li>
+          )}
+          {isLogged && (<li onClick={() => navegarPara('/perfil')}><HiUser /> Perfil</li>
+          )}
+          {isLogged && (<li onClick={() => navegarPara('/interesses')}><HiOutlineAcademicCap /> Interesses</li>
+          )}
+        </ul>
+      </div>
     </div>
   );
 };
 
-export default Layout;
+export default Menu;

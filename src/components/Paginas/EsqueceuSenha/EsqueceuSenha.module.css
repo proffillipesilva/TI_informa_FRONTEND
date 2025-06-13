@@ -1,0 +1,168 @@
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 160px);
+  padding: 20px;
+  margin-top: 80px;
+  margin-bottom: 80px;
+  overflow: hidden;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 485px;
+  padding: 0 20px;
+}
+
+.card {
+  background-color: #f5f5f5;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 20px;
+}
+
+.instructionText {
+  font-size: 1rem;
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.perguntaSeguranca {
+  font-size: 1.125rem; 
+  font-weight: bold;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 15px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  caret-color: auto;
+  box-sizing: border-box;
+}
+
+.button {
+  width: 100%;
+  padding: 12px;
+  background-color: #1f577c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.button:hover {
+  background-color: #5a6d80;
+}
+
+.erroResposta {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.register {
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.registerText {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.registerLink {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.9rem;
+  outline: none;
+  padding: 0;
+}
+
+.registerLink:focus {
+  outline: none;
+}
+
+.registerLink:hover {
+  text-decoration: underline;
+}
+
+.bar {
+  background-color: #8ca8c2;
+  height: 80px;
+  width: 100%;
+  position: fixed;
+  left: 0;
+  z-index: 1000;
+}
+
+.bar.bottom {
+  bottom: 0;
+}
+
+@media (max-width: 768px) {
+  .container {
+    margin-top: 60px;
+    margin-bottom: 60px;
+    min-height: calc(100vh - 120px);
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .card, .register {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+  }
+
+  .title {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+
+  .card, .register {
+    padding: 15px;
+  }
+
+  .input, .button {
+    padding: 10px;
+  }
+
+  .bar {
+    height: 60px;
+  }
+}

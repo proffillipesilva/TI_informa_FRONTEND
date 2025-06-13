@@ -1,0 +1,397 @@
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  margin: 117px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  position: relative;
+  min-height: calc(100vh - 117px - 20px);
+  overflow: auto;
+  max-height: 90vh;
+}
+
+.thumbnail {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 4px;
+  margin-bottom: 8px;
+  cursor: pointer;
+}
+
+.tituloVideo {
+  text-align: center;
+  width: 100%;
+  display: block;
+  margin-bottom: 10px;
+  font-size: 18px;
+  color: #333;
+}
+
+.tituloPlaylist {
+  font-size: 35px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+  width: 100%;
+}
+
+.visibilidade {
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 20px;
+  text-align: center;
+  width: 100%;
+}
+
+.listaVideos {
+  width: 75%;
+  margin-top: 10px;
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  background-color: #f9f9f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.itemVideo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  padding: 15px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.nomeArquivo {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.videoPlayer {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.videoPlayerWrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.tituloPlaylistVideo {
+  font-size: 22px;
+  font-weight: normal;
+  margin-bottom: 10px;
+  color: #333;
+  font-weight: normal;
+  text-align: center;
+  width: 100%;
+}
+
+@media (max-width: 425px) {
+  .container {
+    width: 95%;
+    margin: 80px auto 20px auto;
+    padding: 10px;
+    min-height: calc(100vh - 100px);
+  }
+  .tituloPlaylist {
+    font-size: 24px;
+  }
+  .visibilidade {
+    font-size: 14px;
+  }
+  .listaVideos {
+    width: 95%;
+    padding: 5px;
+  }
+  .itemVideo {
+    width: 95%;
+    padding: 10px;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 16px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 18px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 300px;
+  }
+}
+
+@media (min-width: 426px) and (max-width: 480px) {
+  .container {
+    width: 90%;
+    margin: 90px auto 20px auto;
+    padding: 15px;
+    min-height: calc(100vh - 110px);
+  }
+  .tituloPlaylist {
+    font-size: 28px;
+  }
+  .visibilidade {
+    font-size: 15px;
+  }
+  .listaVideos {
+    width: 90%;
+  }
+  .itemVideo {
+    width: 90%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 17px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 20px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 350px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .container {
+    width: 85%;
+    margin: 100px auto 20px auto;
+    padding: 18px;
+  }
+  .tituloPlaylist {
+    font-size: 30px;
+  }
+  .listaVideos {
+    width: 85%;
+  }
+  .itemVideo {
+    width: 85%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 18px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 20px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    width: 75%;
+    padding: 25px;
+  }
+  .tituloPlaylist {
+    font-size: 32px;
+  }
+  .listaVideos {
+    width: 80%;
+  }
+  .itemVideo {
+    width: 75%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 18px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 22px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .container {
+    width: 70%;
+    padding: 30px;
+  }
+  .listaVideos {
+    width: 70%;
+  }
+  .itemVideo {
+    width: 70%;
+  }
+}
+
+@media (min-width: 1201px) and (max-width: 1440px) {
+  .container {
+    width: 65%;
+    padding: 35px;
+  }
+  .listaVideos {
+    width: 65%;
+  }
+  .itemVideo {
+    width: 65%;
+  }
+}
+
+@media (min-width: 1441px) and (max-width: 1920px) {
+  .container {
+    width: 60%;
+    padding: 40px;
+  }
+  .listaVideos {
+    width: 60%;
+  }
+  .itemVideo {
+    width: 60%;
+  }
+}
+
+@media (min-width: 1921px) and (max-width: 2560px) {
+  .container {
+    width: 55%;
+    padding: 45px;
+  }
+  .tituloPlaylist {
+    font-size: 40px;
+  }
+  .visibilidade {
+    font-size: 18px;
+  }
+  .listaVideos {
+    width: 55%;
+  }
+  .itemVideo {
+    width: 55%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 20px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 24px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 2561px) and (max-width: 3840px) {
+  .container {
+    width: 50%;
+    padding: 50px;
+  }
+  .tituloPlaylist {
+    font-size: 45px;
+  }
+  .visibilidade {
+    font-size: 20px;
+  }
+  .listaVideos {
+    width: 50%;
+  }
+  .itemVideo {
+    width: 50%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 22px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 28px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 3841px) and (max-width: 5120px) {
+  .container {
+    width: 45%;
+    padding: 60px;
+  }
+  .tituloPlaylist {
+    font-size: 50px;
+  }
+  .visibilidade {
+    font-size: 22px;
+  }
+  .listaVideos {
+    width: 45%;
+  }
+  .itemVideo {
+    width: 45%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 24px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 32px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 700px;
+  }
+}
+
+@media (min-width: 5121px) and (max-width: 7680px) {
+  .container {
+    width: 40%;
+    padding: 70px;
+  }
+  .tituloPlaylist {
+    font-size: 60px;
+  }
+  .visibilidade {
+    font-size: 24px;
+  }
+  .listaVideos {
+    width: 40%;
+  }
+  .itemVideo {
+    width: 40%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 28px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 36px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 800px;
+  }
+}
+
+@media (min-width: 7681px) {
+  .container {
+    width: 35%;
+    padding: 80px;
+  }
+  .tituloPlaylist {
+    font-size: 70px;
+  }
+  .visibilidade {
+    font-size: 26px;
+  }
+  .listaVideos {
+    width: 35%;
+  }
+  .itemVideo {
+    width: 35%;
+  }
+  .tituloVideo, .nomeArquivo {
+    font-size: 32px;
+  }
+  .tituloPlaylistVideo {
+    font-size: 40px;
+  }
+  .thumbnail, .videoPlayer {
+    max-width: 900px;
+  }
+}

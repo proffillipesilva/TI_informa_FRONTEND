@@ -2,33 +2,36 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background-color: #f3f4f6;
   font-family: Arial, sans-serif;
+  padding: 20px;
 }
 
 .login-container {
   display: flex;
-  width: 80%;
+  width: 100%;
   max-width: 900px;
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   overflow: hidden;
+  flex-direction: column;
 }
 
 .form-container {
   flex: 1;
-  padding: 40px;
+  padding: 30px;
   display: flex;
   flex-direction: column;
   justify-content: center;
 }
 
 .form-container h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   color: #333;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .form-container label {
@@ -40,7 +43,7 @@
 .form-container input {
   width: 100%;
   padding: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 15px;
   border: 1px solid #ddd;
   border-radius: 5px;
   font-size: 1rem;
@@ -66,13 +69,37 @@
   justify-content: space-between;
   margin-top: 10px;
   font-size: 0.9rem;
+  flex-wrap: wrap;
 }
 
 .form-container .links a {
   color: #007bff;
   text-decoration: none;
+  margin: 5px 0;
 }
 
 .form-container .links a:hover {
   text-decoration: underline;
+}
+
+@media (min-width: 768px) {
+  .login-container {
+    flex-direction: row;
+    width: 90%;
+  }
+  
+  .form-container {
+    padding: 40px;
+  }
+  
+  .form-container h1 {
+    font-size: 1.8rem;
+    text-align: left;
+  }
+}
+
+@media (min-width: 992px) {
+  .login-container {
+    width: 80%;
+  }
 }
