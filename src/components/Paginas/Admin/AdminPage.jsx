@@ -60,16 +60,16 @@ const AdminPage = () => {
     }
   };
 
-  const handleRecusar = async (id) => { // Renomeado de handleReprovar para handleRecusar
+  const handleRecusar = async (id) => { //
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`/usuario/reprovar-criador/${id}`, {}, { // A rota da API ainda é "reprovar-criador"
+      await axios.post(`/usuario/reprovar-criador/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSolicitacoes(solicitacoes.filter(s => s.id !== id));
-      alert('Solicitação recusada com sucesso!'); // Mensagem de alerta atualizada
+      alert('Solicitação recusada com sucesso!');
     } catch {
-      alert('Erro ao recusar solicitação'); // Mensagem de alerta atualizada
+      alert('Erro ao recusar solicitação');
     }
   };
 
