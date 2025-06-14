@@ -198,6 +198,8 @@ const Home = () => {
           <span className={styles.tituloFiltros}>Filtros</span>
           <select className={styles.selectCategorias}>
             <option>Todas as categorias</option>
+            <option>Bem avaliados</option>
+            <option>Mais recente</option>
           </select>
         </div>
       </div>
