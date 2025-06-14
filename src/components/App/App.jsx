@@ -21,8 +21,8 @@ import {myGetToken, onMessageListener} from "../../firebaseConfig";
 
 function App() {
     const [, setTokenFound] = React.useState(false);
-     myGetToken(setTokenFound);
-
+     const tokenFound = myGetToken(setTokenFound);
+    
     onMessageListener()
         .then((payload) => {
             console.log('Foreground message received:', payload);
