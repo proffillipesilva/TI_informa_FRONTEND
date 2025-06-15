@@ -110,7 +110,7 @@ const UploadVideo = () => {
                 }
             });
 
-            if (response.data && response.data.includes("File uploaded")) {
+            if (response.status === 201) {
                 alert('Vídeo enviado com sucesso!');
                 navigate('/perfil');
             } else {
@@ -206,7 +206,7 @@ const UploadVideo = () => {
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label>Palavras-chave:*</label> {/* Adicionado * para indicar que é obrigatório */}
+                        <label>Palavras-chave:*</label> 
                         <div className={styles.checkboxGroupContainer}>
                             {Object.entries(categoriasPalavrasChave).map(([categoriaNome, palavras]) => (
                                 <div key={categoriaNome} className={styles.categoriaCheckboxGroup}>

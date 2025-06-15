@@ -32,14 +32,13 @@ const ConfirmationModal = ({ show, message, onConfirm, onCancel, showConfirmButt
   );
 };
 
-// New SuccessModal Component
 const SuccessModal = ({ show, message, onClose }) => {
   useEffect(() => {
     let timer;
     if (show) {
       timer = setTimeout(() => {
         onClose();
-      }, 2000); // Automatically close after 2 seconds
+      }, 2000); 
     }
     return () => clearTimeout(timer);
   }, [show, onClose]);
@@ -315,53 +314,65 @@ const Perfil = () => {
     }
   };
 
-  // Function to handle opening the confirmation modal for video deletion
   const handleDeletarVideoClick = (video) => {
     setVideoToDelete(video);
     setShowConfirmVideoModal(true);
   };
 
-  // Function to confirm video deletion
   const confirmDeletarVideo = async () => {
     if (!videoToDelete) return;
 
+    const token = localStorage.getItem('token');
+
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`/file/delete/${videoToDelete.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+        const response = await axios.delete(`/file/delete/${videoToDelete.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
 
-      const videosResponse = await axios.get('/file/meus-videos', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setVideosUsuario(Array.isArray(videosResponse.data) ? videosResponse.data : []);
+        const videosResponse = await axios.get('/file/meus-videos', {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        setVideosUsuario(Array.isArray(videosResponse.data) ? videosResponse.data : []);
 
-      setShowConfirmVideoModal(false);
-      setVideoToDelete(null);
-      setVideoSuccessMessage('Vídeo excluído com sucesso!');
-      setShowVideoSuccessModal(true);
+        setShowConfirmVideoModal(false);
+        setVideoToDelete(null);
+        setVideoSuccessMessage(response.data?.message || 'Vídeo excluído com sucesso!');
+        setShowVideoSuccessModal(true);
     } catch (error) {
-      console.error('Erro ao excluir vídeo:', error);
-      alert('Erro ao excluir vídeo: ' + (error.response?.data?.message || 'Tente novamente mais tarde'));
-    } finally {
-      setShowConfirmVideoModal(false);
-      setVideoToDelete(null);
+        console.error('Erro ao excluir vídeo:', error);
+        
+        try {
+            const videosResponse = await axios.get('/file/meus-videos', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const videoStillExists = videosResponse.data.some(v => v.id === videoToDelete.id);
+            
+            if (!videoStillExists) {
+                setVideosUsuario(videosResponse.data);
+                setShowConfirmVideoModal(false);
+                setVideoToDelete(null);
+                setVideoSuccessMessage('Vídeo excluído com sucesso!');
+                setShowVideoSuccessModal(true);
+            } else {
+                alert('Erro ao excluir vídeo: ' + (error.response?.data?.error || error.message || 'Tente novamente mais tarde'));
+            }
+        } catch (err) {
+            console.error('Erro ao verificar vídeos:', err);
+            alert('Erro ao verificar status do vídeo: ' + err.message);
+        }
     }
-  };
+};
 
-  // Function to cancel video deletion
   const cancelDeletarVideo = () => {
     setShowConfirmVideoModal(false);
     setVideoToDelete(null);
   };
 
-  // Function to handle opening the confirmation modal for playlist deletion
   const handleDeletarPlaylistClick = (playlist) => {
     setPlaylistToDelete(playlist);
     setShowConfirmPlaylistModal(true);
   };
 
-  // Function to confirm playlist deletion
   const confirmDeletarPlaylist = async () => {
     if (!playlistToDelete) return;
 
@@ -371,7 +382,6 @@ const Perfil = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      // Atualiza a lista de playlists após a exclusão
       const res = await axios.get('/playlists/minhas-playlists', {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -390,7 +400,6 @@ const Perfil = () => {
     }
   };
 
-  // Function to cancel playlist deletion
   const cancelDeletarPlaylist = () => {
     setShowConfirmPlaylistModal(false);
     setPlaylistToDelete(null);
@@ -659,7 +668,7 @@ const Perfil = () => {
                   className={styles.botaoExcluir}
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleDeletarVideoClick(video); // Use the new handler
+                    handleDeletarVideoClick(video);
                   }}
                 >
                   Excluir Vídeo
