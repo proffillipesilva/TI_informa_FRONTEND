@@ -38,7 +38,21 @@ const VideoPage = () => {
   const [loadingPlaylists, setLoadingPlaylists] = useState(false);
   const [showPlaylistSelect, setShowPlaylistSelect] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState('');
-  const [videoViews, setVideoViews] = useState(0); 
+  const [videoViews, setVideoViews] = useState(0);
+
+  const isEmpty = (obj) => {
+    return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
+  };
+
+  const getAuthenticatedUserId = () => {
+    const storedUserId = localStorage.getItem('userId');
+    const token = localStorage.getItem('token');
+    
+    if (!storedUserId || !token) {
+      return null;
+    }
+    return parseInt(storedUserId, 10);
+  };
 
   useEffect(() => {
     document.documentElement.classList.add(styles.htmlVideoPage);
@@ -51,11 +65,6 @@ const VideoPage = () => {
     if (!videoKey) return '';
     return `https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/${videoKey}`;
   }, []);
-
-  const getSimulatedUserId = () => {
-    const storedUserId = localStorage.getItem('userId');
-    return storedUserId ? parseInt(storedUserId, 10) : 1;
-  };
 
   const handleAddToPlaylist = async () => {
     if (!selectedPlaylist || !videoId) {
@@ -109,32 +118,62 @@ const VideoPage = () => {
   }, []);
 
   useEffect(() => {
-        const incrementAndFetchViews = async () => {
-          if (!videoId) return;
+    const incrementAndFetchViews = async () => {
+      if (!videoId) return;
+
+      const token = localStorage.getItem('token');
+      const headers = token ? { Authorization: `Bearer ${token}` } : {};
+
+      try {
+        await axios.post(`/file/${videoId}/visualizacao`, {}, { headers });
+        console.log(`Visualização do vídeo ${videoId} registrada com sucesso.`);
+      } catch (viewError) {
+        console.error('Erro ao incrementar visualização:', viewError);
+      }
+
+      try {
+        const viewsResponse = await axios.get(`/file/${videoId}/visualizacoes`, { headers });
+        if (viewsResponse.data !== null && typeof viewsResponse.data === 'number') {
+          setVideoViews(viewsResponse.data);
+        }
+      } catch (fetchViewsError) {
+        console.error('Erro ao buscar visualizações do vídeo:', fetchViewsError);
+        setVideoViews(0);
+      }
+    };
+
+    incrementAndFetchViews();
+  }, [videoId]);
+
+  const formatDate = useCallback((dateString) => {
     
-          const token = localStorage.getItem('token');
-          const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    
-          try {
-            await axios.post(`/file/${videoId}/visualizacao`, {}, { headers });
-            console.log(`Visualização do vídeo ${videoId} registrada com sucesso.`);
-          } catch (viewError) {
-            console.error('Erro ao incrementar visualização:', viewError);
-          }
-    
-          try {
-            const viewsResponse = await axios.get(`/file/${videoId}/visualizacoes`, { headers });
-            if (viewsResponse.data !== null && typeof viewsResponse.data === 'number') {
-              setVideoViews(viewsResponse.data);
-            }
-          } catch (fetchViewsError) {
-            console.error('Erro ao buscar visualizações do vídeo:', fetchViewsError);
-            setVideoViews(0);
-          }
-        };
-    
-        incrementAndFetchViews();
-      }, [videoId]);
+    if (!dateString) return 'Data desconhecida';
+
+    try {
+      let normalizedDateString = String(dateString);
+      if (!normalizedDateString.endsWith('Z') && !normalizedDateString.includes('+')) {
+        normalizedDateString += 'Z';
+      }
+      
+      const date = new Date(normalizedDateString);
+      
+      if (isNaN(date.getTime())) {
+        throw new Error('Data inválida');
+      }
+
+      return date.toLocaleDateString('pt-BR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        timeZone: 'America/Sao_Paulo'
+      });
+    } catch (error) {
+      console.error("Erro ao formatar data:", error, "Input:", dateString);
+      return 'Data inválida';
+    }
+  }, []);
 
   useEffect(() => {
     const fetchVideoData = async () => {
@@ -149,7 +188,12 @@ const VideoPage = () => {
       const token = localStorage.getItem('token');
       const headers = token ? { Authorization: `Bearer ${token}` } : {};
 
-      setCurrentUserId(getSimulatedUserId());
+      try {
+        const userId = getAuthenticatedUserId();
+        setCurrentUserId(userId);
+      } catch {
+        console.log('Usuário não autenticado - avaliações desabilitadas');
+      }
 
       let currentVideoData = null;
 
@@ -175,24 +219,31 @@ const VideoPage = () => {
           setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
         }
 
-        if (token && videoId) {
+        if (token && videoId && currentUserId) {
           try {
-            const userId = getSimulatedUserId();
-            const evalResponse = await axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
+            const evalResponse = await axios.get(
+              `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
+              { headers: { Authorization: `Bearer ${token}` } }
+            );
 
-            if (evalResponse.data) {
-              setExistingEvaluation(evalResponse.data);
+
+            if (evalResponse.data && !isEmpty(evalResponse.data)) {
+              const evaluationData = {
+                ...evalResponse.data,
+                dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
+              };
+              
+              setExistingEvaluation(evaluationData);
               setHasRated(true);
               setUserRating(evalResponse.data.nota);
               setComment(evalResponse.data.comentario);
             }
           } catch (err) {
-            console.log('Usuário ainda não avaliou este vídeo', err);
+            if (err.response?.status !== 404) {
+              console.error('Erro ao buscar avaliação:', err);
+            }
           }
         }
-
       } catch (err) {
         console.error('Erro ao carregar vídeo principal:', err);
         setError(err.message || 'Erro ao carregar o vídeo. Por favor, tente novamente.');
@@ -230,7 +281,7 @@ const VideoPage = () => {
     };
 
     fetchVideoData();
-  }, [videoId, location.state, navigate, getVideoSource]); 
+  }, [videoId, location.state, navigate, getVideoSource, currentUserId]);
 
   const handleSubscribe = async () => {
     try {
@@ -268,79 +319,107 @@ const VideoPage = () => {
   };
 
   const handleSubmitEvaluation = async () => {
-    if (hasRated) {
+    try {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+  
+      if (!userId || userId === "undefined" || isNaN(userId)) {
+        setRatingMessage('ID de usuário inválido. Faça login novamente.');
+        localStorage.removeItem('userId'); 
+        navigate('/login');
+        return;
+      }
+  
+      const numericUserId = Number(userId);
+      
+      if (hasRated) {
         setRatingMessage('Você já avaliou este vídeo.');
         setTimeout(() => setRatingMessage(''), 3000);
         return;
-    }
-
-    if (userRating === 0) {
-      setRatingMessage('Por favor, selecione uma nota (estrelas).');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    if (!comment.trim()) {
-      setRatingMessage('Por favor, adicione um comentário.');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-          navigate('/login');
-          return;
       }
-
+  
+      if (userRating === 0) {
+        setRatingMessage('Por favor, selecione uma nota (estrelas).');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
+      if (!comment.trim()) {
+        setRatingMessage('Por favor, adicione um comentário.');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
       setRatingMessage('Enviando sua avaliação...');
-
+  
       const response = await axios.post('/avaliacoes/create', {
-          userId: currentUserId,
-          videoId: videoId,
-          nota: userRating,
-          comentario: comment
+        userId: numericUserId,
+        videoId: Number(videoId), 
+        nota: userRating,
+        comentario: comment
       }, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
       });
-
+      
       if (response.data) {
+        const refreshedEval = await axios.get(
+          `/avaliacoes/usuario/${numericUserId}/video/${videoId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (refreshedEval.data) {
+          setExistingEvaluation({
+            ...refreshedEval.data,
+            dataAvaliacao: refreshedEval.data.dataAvaliacao || new Date().toISOString()
+          });
           setHasRated(true);
-          setExistingEvaluation(response.data);
-          setRatingMessage('Obrigado pela sua avaliação!');
-          setVideoData(prev => ({
-              ...prev,
-              numeroAvaliacoes: (prev.numeroAvaliacoes || 0) + 1,
-              mediaAvaliacoes: (
-                  (prev.mediaAvaliacoes || 0) * (prev.numeroAvaliacoes || 0) + userRating
-              ) / ((prev.numeroAvaliacoes || 0) + 1)
-          }));
+          setUserRating(refreshedEval.data.nota);
+          setComment(refreshedEval.data.comentario);
+        }
+        
+        setRatingMessage('Obrigado pela sua avaliação!');
+        setVideoData(prev => ({
+          ...prev,
+          numeroAvaliacoes: (prev.numeroAvaliacoes || 0) + 1,
+          mediaAvaliacoes: (
+            (prev.mediaAvaliacoes || 0) * (prev.numeroAvaliacoes || 0) + userRating
+          ) / ((prev.numeroAvaliacoes || 0) + 1)
+        }));
       }
     } catch (err) {
       console.error('Erro ao avaliar o vídeo:', err);
-      if (err.response?.status === 409) {
-          setRatingMessage('Você já avaliou este vídeo anteriormente.');
-          setHasRated(true);
-          try {
-            const userId = getSimulatedUserId();
-            const evalResponse = await axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        setRatingMessage('Sessão expirada. Faça login novamente.');
+        navigate('/login', { state: { from: location.pathname } });
+      } else if (err.response?.status === 409) {
+        setRatingMessage('Você já avaliou este vídeo anteriormente.');
+        setHasRated(true);
+        try {
+          const evalResponse = await axios.get(
+            `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+          );
+          if (evalResponse.data) {
+            setExistingEvaluation({
+              ...evalResponse.data,
+              dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
             });
-            if (evalResponse.data) {
-              setExistingEvaluation(evalResponse.data);
-              setUserRating(evalResponse.data.nota);
-              setComment(evalResponse.data.comentario);
-            }
-          } catch (fetchErr) {
-            console.error('Erro ao buscar avaliação existente:', fetchErr);
+            setUserRating(evalResponse.data.nota);
+            setComment(evalResponse.data.comentario);
           }
+        } catch (fetchErr) {
+          console.error('Erro ao buscar avaliação existente:', fetchErr);
+        }
       } else {
-          setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
+        setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
       }
     } finally {
-        setTimeout(() => setRatingMessage(''), 3000);
+      setTimeout(() => setRatingMessage(''), 3000);
     }
   };
 
@@ -352,13 +431,18 @@ const VideoPage = () => {
       setRatingMessage('Removendo sua avaliação...');
 
       const token = localStorage.getItem('token');
-      if (!token) {
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
         navigate('/login');
         return;
       }
 
       await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'X-User-Id': userId
+        }
       });
 
       setExistingEvaluation(null);
@@ -383,21 +467,6 @@ const VideoPage = () => {
       setTimeout(() => setRatingMessage(''), 3000);
     }
   };
-
-  const formatDate = useCallback((dateString) => {
-    try {
-      if (!dateString) return 'Data desconhecida';
-      const options = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        timeZone: 'America/Sao_Paulo'
-      };
-      return new Date(dateString).toLocaleDateString('pt-BR', options);
-    } catch {
-      return 'Data inválida';
-    }
-  }, []);
 
   const handleRecommendedVideoClick = useCallback((video) => {
     if (!video) return;
@@ -589,7 +658,9 @@ const VideoPage = () => {
                       <p>{existingEvaluation.comentario}</p>
                     </div>
                     <p className={styles.evaluationDate}>
-                      Avaliado em: {formatDate(existingEvaluation.dataAvaliacao)}
+                      {existingEvaluation?.dataAvaliacao 
+                        ? `Avaliado em: ${formatDate(existingEvaluation.dataAvaliacao)}`
+                        : 'Data de avaliação indisponível'}
                     </p>
                     <button
                       className={styles.deleteEvaluationButton}

@@ -90,27 +90,47 @@ const Login = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+  
     try {
       const response = await axios.post('/auth/login', {
         email: formData.email,
         senha: formData.password,
       });
-      
-      localStorage.setItem('token', response.data.token);
-      
+  
+      const token = response.data.token;
+      if (!token) {
+        throw new Error('Token não recebido do servidor');
+      }
+  
+      localStorage.setItem('token', token);
+  
+      const userResponse = await axios.get('/auth/me', {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      if (!userResponse.data.id) {
+        throw new Error('ID do usuário não encontrado');
+      }
+  
+      localStorage.setItem('userId', userResponse.data.id.toString());
+      localStorage.setItem('userData', JSON.stringify(userResponse.data));
+      localStorage.setItem('token', token); 
+  
       if (response.data.cadastroCompleto) {
-        setUsuarioLogado(true);
         navegarPara('/home');
       } else {
         navegarPara('/home');
       }
+  
     } catch (err) {
-      if (err.response) {
-        setError(err.response.status === 401 ? 'E-mail ou senha incorretos' : 'Erro ao fazer login');
-      } else {
-        setError('Não foi possível conectar ao servidor');
-      }
+      console.error('Erro no login:', err);
+      setError(err.response?.data?.message || 
+              err.message || 
+              'Erro ao fazer login');
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
     } finally {
       setLoading(false);
     }
