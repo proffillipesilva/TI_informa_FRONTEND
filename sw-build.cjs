@@ -4,14 +4,14 @@
     require('dotenv').config()
 
 
-    const firebaseConfig = {
+const firebaseConfig = {
     apiKey: `${process.env.VITE_FIREBASE_API_KEY}`,
-    authDomain: "fir-3mod25.firebaseapp.com",
-    projectId: "fir-3mod25",
-    storageBucket: "fir-3mod25.firebasestorage.app",
-    messagingSenderId: "769227253844",
-    appId: "1:769227253844:web:a57702ba8f9aca555925c1",
-    measurementId: "G-099LW1PGZ9"
+    authDomain: "tcc-ti-informa.firebaseapp.com",
+    projectId: "tcc-ti-informa",
+    storageBucket: "tcc-ti-informa.firebasestorage.app",
+    messagingSenderId: "324379151752",
+    appId: "1:324379151752:web:91aa1c55c4bc20c2737e3d",
+    measurementId: "G-S5YRSQJ5QN"
   };
 
     const swContent = `
