@@ -40,6 +40,10 @@ const PlaylistVideo = () => {
   const [playlistName, setPlaylistName] = useState('');
   const [currentVideoId, setCurrentVideoId] = useState(videoId);
   const [videoViews, setVideoViews] = useState(0);
+  const [playlists, setPlaylists] = useState([]);
+  const [loadingPlaylists, setLoadingPlaylists] = useState(false);
+  const [showPlaylistSelect, setShowPlaylistSelect] = useState(false);
+  const [selectedPlaylist, setSelectedPlaylist] = useState('');
 
   const getVideoSource = useCallback((video) => {
     const s3BaseUrl = 'https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/';
@@ -132,6 +136,57 @@ const PlaylistVideo = () => {
       console.error("Erro ao formatar data:", error, "Input:", dateString);
       return 'Data inválida';
     }
+  }, []);
+
+  const handleAddToPlaylist = async () => {
+    if (!selectedPlaylist || !currentVideoId) {
+      alert('Selecione uma playlist e verifique o vídeo');
+      return;
+    }
+
+    setLoadingPlaylists(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `/playlists/${selectedPlaylist}/adicionar-video`,
+        {},
+        {
+          params: { videoId: currentVideoId.toString() },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      alert('Vídeo adicionado à playlist!');
+      setShowPlaylistSelect(false);
+    } catch (error) {
+      console.error('Erro ao adicionar vídeo:', error);
+      alert(error.response?.data?.message || 'Erro ao adicionar vídeo à playlist');
+    } finally {
+      setLoadingPlaylists(false);
+    }
+  };
+
+  useEffect(() => {
+    const fetchPlaylists = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      try {
+        setLoadingPlaylists(true);
+        const res = await axios.get('/playlists/minhas-playlists', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setPlaylists(res.data);
+      } catch (error) {
+        console.error('Erro ao buscar playlists:', error);
+      } finally {
+        setLoadingPlaylists(false);
+      }
+    };
+
+    fetchPlaylists();
   }, []);
 
   useEffect(() => {
@@ -632,6 +687,42 @@ const PlaylistVideo = () => {
                     >
                       {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
                     </button>
+                  )}
+                  {localStorage.getItem('token') && (
+                    <div className={styles.playlistAction}>
+                      <button
+                        className={styles.addToPlaylistButton}
+                        onClick={() => setShowPlaylistSelect(!showPlaylistSelect)}
+                      >
+                        Adicionar à Playlist
+                      </button>
+                      {showPlaylistSelect && (
+                        <div className={styles.playlistDropdown}>
+                          <select
+                            value={selectedPlaylist}
+                            onChange={(e) => setSelectedPlaylist(e.target.value)}
+                            className={styles.playlistSelect}
+                          >
+                            <option value="">Selecione uma playlist</option>
+                            {playlists.map((pl) => (
+                              <option
+                                key={pl.id_playlist || pl.id}
+                                value={pl.id_playlist || pl.id}
+                              >
+                                {pl.nome}
+                              </option>
+                            ))}
+                          </select>
+                          <button
+                            onClick={handleAddToPlaylist}
+                            disabled={!selectedPlaylist || loadingPlaylists}
+                            className={styles.confirmAddButton}
+                          >
+                            {loadingPlaylists ? 'Adicionando...' : 'Confirmar'}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               </div>

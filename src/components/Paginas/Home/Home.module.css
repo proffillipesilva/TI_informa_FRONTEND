@@ -180,13 +180,6 @@ body {
   flex-direction: column;
 }
 
-.recommendedVideos {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 20px;
-  padding: 20px 0;
-}
-
 .recommendedVideoCard {
   cursor: pointer;
   transition: transform 0.2s;
@@ -278,6 +271,12 @@ body {
   justify-content: flex-start;
   align-items: flex-start;
   height: auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none; 
+  margin: 0;
+  justify-content: flex-start;
+  width: 100%; 
   max-width: calc( (360px * 5) + (20px * 4) );
   margin: 0 auto;
 }
@@ -339,18 +338,6 @@ body {
 .nextButton {
   right: -15px;
   transform: translateY(-40px);
-}
-
-.recommendedVideos {
-  display: flex;
-  gap: 20px;
-  padding: 10px 0;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  align-items: flex-start;
-  height: auto;
-  max-width: calc( (360px * 5) + (20px * 4) );
-  margin: 0 auto;
 }
 
 .recommendedVideoCard {
@@ -452,7 +439,7 @@ body {
 
   .tituloFiltros {
     font-size: 14px;
-    transform: translateX(0);
+    transform: translateX(500px);
     margin-bottom: 8px;
   }
 
@@ -1057,6 +1044,13 @@ body {
   .iconeComentario {
     font-size: 20px;
   }
+
+  .recommendedVideoCard {
+    min-width: 360px;
+    max-width: 360px;
+    flex-shrink: 0;
+    margin-bottom: 20px;
+  }
 }
 
 @media (min-width: 1920px) and (max-width: 1920px) {
@@ -1110,7 +1104,7 @@ body {
     margin-top: 100px;
     padding: 0 20px;
     border-radius: 15px;
-    transform: translateX(-220px);
+    transform: translateX(-200px);
   }
 
   .barraPesquisaContainer {
@@ -1129,7 +1123,7 @@ body {
 
   .iconePesquisa {
     position: absolute;
-    right: 380px;
+    right: 395px;
     top: 50%;
     transform: translateY(-50%);
     font-size: 20px;
@@ -1145,7 +1139,7 @@ body {
   .tituloFiltros {
     font-size: 16px;
     margin-bottom: 5px;
-    transform: translateX(-140px);
+    transform: translateX(-100px);
   }
 
   .selectCategorias {

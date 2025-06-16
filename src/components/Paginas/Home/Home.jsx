@@ -14,57 +14,68 @@ const Home = () => {
   const [loadingPopular, setLoadingPopular] = useState(true);
   const [errorRecommended, setErrorRecommended] = useState(null);
   const [errorPopular, setErrorPopular] = useState(null);
+  const [filter, setFilter] = useState('default'); // 'default', 'top-rated', 'recent'
 
   const [recommendedStartIndex, setRecommendedStartIndex] = useState(0);
   const [popularStartIndex, setPopularStartIndex] = useState(0);
 
-  useEffect(() => {
+  const fetchVideos = async () => {
     const token = localStorage.getItem('token');
     if (!token) {
       navigate('/login');
       return;
     }
 
-    const fetchRecommendedVideos = async () => {
-      try {
-        setLoadingRecommended(true);
-        const response = await api.get('/file/videos-recomendados');
-        setRecommendedVideos(response.data);
-      } catch (error) {
-        console.error("Erro ao buscar vídeos recomendados:", error);
-        if (error.response?.status === 401) {
-          setErrorRecommended('Sessão expirada ou não autorizado. Por favor, faça login novamente.');
-          navigate('/login');
-        } else {
-          setErrorRecommended('Erro ao buscar vídeos recomendados.');
-        }
-      } finally {
-        setLoadingRecommended(false);
-      }
-    };
+    try {
+      setLoadingRecommended(true);
+      setLoadingPopular(true);
 
-    const fetchPopularVideos = async () => {
-      try {
-        setLoadingPopular(true);
-        const response = await api.get('/file/videos-populares');
-        const sortedPopularVideos = response.data.sort((a, b) => {
-          const viewsA = a.visualizacoes || 0; 
+      let recommendedEndpoint = '/file/videos-recomendados';
+      let popularEndpoint = '/file/videos-populares';
+
+      if (filter === 'top-rated') {
+        recommendedEndpoint = '/file/videos-mais-avaliados/interesses';
+        popularEndpoint = '/file/videos-mais-avaliados/populares';
+      } else if (filter === 'recent') {
+        recommendedEndpoint = '/file/videos-recentes/interesses';
+        popularEndpoint = '/file/videos-recentes/populares';
+      }
+
+      // Fetch recommended videos
+      const recommendedResponse = await api.get(recommendedEndpoint);
+      setRecommendedVideos(recommendedResponse.data);
+
+      // Fetch popular videos
+      const popularResponse = await api.get(popularEndpoint);
+      let sortedPopularVideos = popularResponse.data;
+      
+      if (filter === 'default') {
+        sortedPopularVideos = sortedPopularVideos.sort((a, b) => {
+          const viewsA = a.visualizacoes || 0;
           const viewsB = b.visualizacoes || 0;
-          return viewsB - viewsA; 
+          return viewsB - viewsA;
         });
-        setPopularVideos(sortedPopularVideos);
-      } catch (error) {
-        console.error("Erro ao buscar vídeos populares:", error);
-        setErrorPopular('Erro ao buscar vídeos populares.');
-      } finally {
-        setLoadingPopular(false);
       }
-    };
+      setPopularVideos(sortedPopularVideos);
 
-    fetchRecommendedVideos();
-    fetchPopularVideos();
+    } catch (error) {
+      console.error("Erro ao buscar vídeos:", error);
+      if (error.response?.status === 401) {
+        setErrorRecommended('Sessão expirada ou não autorizado. Por favor, faça login novamente.');
+        navigate('/login');
+      } else {
+        setErrorRecommended('Erro ao buscar vídeos.');
+        setErrorPopular('Erro ao buscar vídeos.');
+      }
+    } finally {
+      setLoadingRecommended(false);
+      setLoadingPopular(false);
+    }
+  };
 
-  }, [navigate]);
+  useEffect(() => {
+    fetchVideos();
+  }, [navigate, filter]);
 
   const getThumbnailSource = (video) => {
     const s3BaseUrl = 'https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/';
@@ -75,7 +86,7 @@ const Home = () => {
       return `${s3BaseUrl}${video.key}`;
     }
     if (video?.urlDoThumbnail) {
-        return video.urlDoThumbnail;
+      return video.urlDoThumbnail;
     }
     return 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
   };
@@ -105,6 +116,23 @@ const Home = () => {
       setRecommendedStartIndex(prevIndex => Math.max(0, prevIndex - 10));
     } else if (type === 'popular') {
       setPopularStartIndex(prevIndex => Math.max(0, prevIndex - 10));
+    }
+  };
+
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value);
+    setRecommendedStartIndex(0);
+    setPopularStartIndex(0);
+  };
+
+  const getSectionTitle = () => {
+    switch (filter) {
+      case 'top-rated':
+        return 'Bem avaliados de acordo com seus interesses.';
+      case 'recent':
+        return 'Recentes de acordo com seus interesses.';
+      default:
+        return 'Recomendados de acordo com seus interesses.';
     }
   };
 
@@ -200,24 +228,30 @@ const Home = () => {
           <HiOutlineSearch className={styles.iconePesquisa} />
         </div>
         <div className={styles.filtros}>
-          <span className={styles.tituloFiltros}>Filtros</span>
-          <select className={styles.selectCategorias}>
-            <option>Todas as categorias</option>
-            <option>Bem avaliados</option>
-            <option>Mais recente</option>
+        <span className={styles.tituloFiltros}>Filtros</span>
+          <select 
+            className={styles.selectCategorias}
+            value={filter}
+            onChange={handleFilterChange}
+          >
+            <option value="default">Nenhum</option>
+            <option value="top-rated">Bem avaliados</option>
+            <option value="recent">Mais recente</option>
           </select>
         </div>
       </div>
 
       <div className={styles.secao}>
         <h2 className={styles.tituloSecao}>
-          Recomendados de acordo com seus interesses.
+          {getSectionTitle()}
         </h2>
         {renderVideoCards(recommendedVideos, loadingRecommended, errorRecommended, recommendedStartIndex, 'recommended')}
       </div>
 
       <div className={styles.secao}>
-        <h2 className={styles.tituloSecao}>Populares</h2>
+        <h2 className={styles.tituloSecao}>
+          {filter === 'top-rated' ? 'Bem avaliados' : filter === 'recent' ? 'Recentes' : 'Populares'}
+        </h2>
         {renderVideoCards(popularVideos, loadingPopular, errorPopular, popularStartIndex, 'popular')}
       </div>
     </div>
