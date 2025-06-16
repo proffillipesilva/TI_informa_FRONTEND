@@ -17,6 +17,26 @@
   font-size: 1rem;
 }
 
+
+.thumbnailRating {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+}
+
+.ratingStars {
+  color: #ffc107;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
 .botaoMenu {
   background: none;
   border: none;

@@ -3,6 +3,7 @@ import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import axios from '../../../api/axios-config';
 import styles from './VideoPage.module.css';
 import Layout from '../../Layout/Layout';
+import { FaStar } from 'react-icons/fa';
 
 const getThumbnailSource = (video) => {
   const s3BaseUrl = 'https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/';
@@ -146,7 +147,6 @@ const VideoPage = () => {
   }, [videoId]);
 
   const formatDate = useCallback((dateString) => {
-    
     if (!dateString) return 'Data desconhecida';
 
     try {
@@ -199,7 +199,10 @@ const VideoPage = () => {
 
       try {
         if (location.state?.video && (location.state.video.id_video || location.state.video.id)) {
-          currentVideoData = location.state.video;
+          currentVideoData = {
+            ...location.state.video,
+            avaliacaoMedia: location.state.video.avaliacaoMedia || 0
+          };
           setVideoData(currentVideoData);
         } else {
           if (!videoId) {
@@ -209,7 +212,10 @@ const VideoPage = () => {
           if (!response.data) {
             throw new Error('Dados do vídeo não recebidos');
           }
-          currentVideoData = response.data;
+          currentVideoData = {
+            ...response.data,
+            avaliacaoMedia: response.data.avaliacaoMedia || 0
+          };
           setVideoData(currentVideoData);
         }
 
@@ -225,7 +231,6 @@ const VideoPage = () => {
               `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
-
 
             if (evalResponse.data && !isEmpty(evalResponse.data)) {
               const evaluationData = {
@@ -258,7 +263,10 @@ const VideoPage = () => {
             ? recResponse.data.filter(recVideo => {
                 const currentVideoIdentifier = videoId || currentVideoData.id_video || currentVideoData.id;
                 return recVideo.id_video != currentVideoIdentifier && recVideo.id != currentVideoIdentifier;
-              })
+              }).map(video => ({
+                ...video,
+                avaliacaoMedia: video.avaliacaoMedia || 0
+              }))
             : [];
           setRecommendedVideos(filteredRecommendedVideos);
         } catch (recError) {
@@ -381,13 +389,20 @@ const VideoPage = () => {
         }
         
         setRatingMessage('Obrigado pela sua avaliação!');
-        setVideoData(prev => ({
-          ...prev,
-          numeroAvaliacoes: (prev.numeroAvaliacoes || 0) + 1,
-          mediaAvaliacoes: (
-            (prev.mediaAvaliacoes || 0) * (prev.numeroAvaliacoes || 0) + userRating
-          ) / ((prev.numeroAvaliacoes || 0) + 1)
-        }));
+        
+        setVideoData(prev => {
+          if (!prev) return prev;
+          
+          const totalAvaliacoes = (prev.numeroAvaliacoes || 0) + 1;
+          const somaAvaliacoes = (prev.avaliacaoMedia || 0) * (prev.numeroAvaliacoes || 0) + userRating;
+          const novaMedia = somaAvaliacoes / totalAvaliacoes;
+          
+          return {
+            ...prev,
+            avaliacaoMedia: novaMedia,
+            numeroAvaliacoes: totalAvaliacoes
+          };
+        });
       }
     } catch (err) {
       console.error('Erro ao avaliar o vídeo:', err);
@@ -451,13 +466,25 @@ const VideoPage = () => {
       setComment('');
       setRatingMessage('Avaliação removida com sucesso!');
 
-      setVideoData(prev => ({
-        ...prev,
-        numeroAvaliacoes: Math.max((prev.numeroAvaliacoes || 1) - 1, 0),
-        mediaAvaliacoes: prev.numeroAvaliacoes <= 1 ? 0 :
-          ((prev.mediaAvaliacoes || 0) * (prev.numeroAvaliacoes || 0) - userRating) /
-          Math.max((prev.numeroAvaliacoes || 1) - 1, 1)
-      }));
+      setVideoData(prev => {
+        if (!prev || !prev.numeroAvaliacoes || prev.numeroAvaliacoes <= 1) {
+          return {
+            ...prev,
+            avaliacaoMedia: 0,
+            numeroAvaliacoes: 0
+          };
+        }
+        
+        const totalAvaliacoes = prev.numeroAvaliacoes - 1;
+        const somaAvaliacoes = prev.avaliacaoMedia * prev.numeroAvaliacoes - existingEvaluation.nota;
+        const novaMedia = somaAvaliacoes / totalAvaliacoes;
+        
+        return {
+          ...prev,
+          avaliacaoMedia: novaMedia,
+          numeroAvaliacoes: totalAvaliacoes
+        };
+      });
 
     } catch (err) {
       console.error('Erro ao remover avaliação:', err);
@@ -556,18 +583,22 @@ const VideoPage = () => {
             <div className={styles.videoInfoContainer}>
               <h1 className={styles.videoTitle}>{videoData.titulo || 'Título não disponível'}</h1>
 
-              <div className={styles.videoMetadata}>
-                <span className={styles.videoStat}>
-                  <span>{videoViews} visualizações</span>
-                </span>
-                <span className={styles.videoStat}>•</span>
-                <span className={styles.videoStat}>
-                  <span>{formatDate(videoData.dataPublicacao)}</span>
-                </span>
-                <span className={styles.videoStat}>
-                  • Média: {videoData.mediaAvaliacoes?.toFixed(1) || '0.0'} ({videoData.numeroAvaliacoes || 0} avaliações)
-                </span>
+              <div className={styles.videoStatsContainer}>
+                <div className={styles.videoMetadata}>
+                  <span className={styles.videoStat}>
+                    <span>{videoViews} visualizações</span>
+                  </span>
+                  <span className={styles.videoStat}>•</span>
+                  <span className={styles.videoStat}>
+                    <span>{formatDate(videoData.dataPublicacao)}</span>
+                  </span>
+                <div className={styles.ratingContainer}>
+                  <span className={styles.videoStat}>
+                    {videoData.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar />
+                  </span>
+                </div>
               </div>
+            </div>
 
               <div className={styles.creatorInfo}>
                 <div className={styles.creatorLeft}>
@@ -722,29 +753,33 @@ const VideoPage = () => {
                   className={styles.recommendedVideoCard}
                   onClick={() => handleRecommendedVideoClick(video)}
                 >
-                  <div className={styles.thumbnailContainer}>
-                    <img
-                      src={getThumbnailSource(video)}
-                      alt={video.titulo}
-                      className={styles.thumbnail}
-                      onError={(e) => {
-                        e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel'
-                      }}
-                    />
-                    <span className={styles.videoDuration}>10:30</span>
-                  </div>
-                  <div className={styles.recommendedVideoInfo}>
-                    <h4 className={styles.recommendedVideoTitle}>
-                      {video.titulo || 'Vídeo sem título'}
-                    </h4>
-                    <p className={styles.recommendedVideoCreator}>
-                      {video.criador?.nome || 'Criador desconhecido'}
-                    </p>
-                    <p className={styles.recommendedVideoStats}>
-                      {video.visualizacoes || 0} visualizações • {formatDate(video.dataPublicacao)}
-                    </p>
+                <div className={styles.thumbnailContainer}>
+                  <img
+                    src={getThumbnailSource(video)}
+                    alt={video.titulo}
+                    className={styles.thumbnail}
+                    onError={(e) => {
+                      e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel'
+                    }}
+                  />
+                  <div className={styles.thumbnailRating}>
+                    <span className={styles.ratingStars}>
+                      {video.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar size={12} />
+                    </span>
                   </div>
                 </div>
+                <div className={styles.recommendedVideoInfo}>
+                  <h4 className={styles.recommendedVideoTitle}>
+                    {video.titulo || 'Vídeo sem título'}
+                  </h4>
+                  <p className={styles.recommendedVideoCreator}>
+                    {video.criador?.nome || 'Criador desconhecido'}
+                  </p>
+                  <p className={styles.recommendedVideoStats}>
+                    {video.visualizacoes || 0} visualizações • {formatDate(video.dataPublicacao)}
+                  </p>
+                </div>
+              </div>
               ))
             ) : (
               <p className={styles.noRecommendations}>Nenhum vídeo recomendado disponível</p>

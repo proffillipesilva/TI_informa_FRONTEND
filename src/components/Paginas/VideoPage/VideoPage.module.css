@@ -14,6 +14,34 @@
   overflow-y: auto;
 }
 
+.thumbnail {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+}
+
+.thumbnailRating {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 4px 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratingStars {
+  color: gold;
+  font-size: 0.8rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
 
 .actionButtons {
   display: flex;
@@ -231,7 +259,7 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #666;
+  color: gold;
   font-size: 0.9rem;
   margin-bottom: 15px;
   flex-wrap: wrap;

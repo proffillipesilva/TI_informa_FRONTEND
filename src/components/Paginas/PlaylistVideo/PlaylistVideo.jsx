@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { FaStar } from 'react-icons/fa';
 import axios from '../../../api/axios-config';
 import styles from './PlaylistVideo.module.css';
 import Layout from '../../Layout/Layout';
@@ -289,36 +290,42 @@ const PlaylistVideo = () => {
   };
 
   const handleSubmitEvaluation = async () => {
-    if (hasRated) {
-      setRatingMessage('Você já avaliou este vídeo.');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    if (userRating === 0) {
-      setRatingMessage('Por favor, selecione uma nota (estrelas).');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    if (!comment.trim()) {
-      setRatingMessage('Por favor, adicione um comentário.');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
+      const userId = localStorage.getItem('userId');
+  
+      if (!userId || userId === "undefined" || isNaN(userId)) {
+        setRatingMessage('ID de usuário inválido. Faça login novamente.');
+        localStorage.removeItem('userId'); 
         navigate('/login');
         return;
       }
-
+  
+      const numericUserId = Number(userId);
+      
+      if (hasRated) {
+        setRatingMessage('Você já avaliou este vídeo.');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
+      if (userRating === 0) {
+        setRatingMessage('Por favor, selecione uma nota (estrelas).');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
+      if (!comment.trim()) {
+        setRatingMessage('Por favor, adicione um comentário.');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
       setRatingMessage('Enviando sua avaliação...');
-
+  
       const response = await axios.post('/avaliacoes/create', {
-        userId: currentUserId,
-        videoId: videoId,
+        userId: numericUserId,
+        videoId: Number(videoId), 
         nota: userRating,
         comentario: comment
       }, {
@@ -327,30 +334,59 @@ const PlaylistVideo = () => {
           'Content-Type': 'application/json'
         }
       });
-
+      
       if (response.data) {
-        setHasRated(true);
-        setExistingEvaluation(response.data);
+        const refreshedEval = await axios.get(
+          `/avaliacoes/usuario/${numericUserId}/video/${videoId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+        if (refreshedEval.data) {
+          setExistingEvaluation({
+            ...refreshedEval.data,
+            dataAvaliacao: refreshedEval.data.dataAvaliacao || new Date().toISOString()
+          });
+          setHasRated(true);
+          setUserRating(refreshedEval.data.nota);
+          setComment(refreshedEval.data.comentario);
+        }
+        
         setRatingMessage('Obrigado pela sua avaliação!');
-        setVideoData(prev => ({
-          ...prev,
-          numeroAvaliacoes: (prev.numeroAvaliacoes || 0) + 1,
-          mediaAvaliacoes: (
-            (prev.mediaAvaliacoes || 0) * (prev.numeroAvaliacoes || 0) + userRating
-          ) / ((prev.numeroAvaliacoes || 0) + 1)
-        }));
+        
+        setVideoData(prev => {
+          if (!prev) return prev;
+          
+          const totalAvaliacoes = (prev.numeroAvaliacoes || 0) + 1;
+          const somaAvaliacoes = (prev.avaliacaoMedia || 0) * (prev.numeroAvaliacoes || 0) + userRating;
+          const novaMedia = somaAvaliacoes / totalAvaliacoes;
+          
+          return {
+            ...prev,
+            avaliacaoMedia: novaMedia,
+            numeroAvaliacoes: totalAvaliacoes
+          };
+        });
       }
     } catch (err) {
       console.error('Erro ao avaliar o vídeo:', err);
-      if (err.response?.status === 409) {
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        setRatingMessage('Sessão expirada. Faça login novamente.');
+        navigate('/login', { state: { from: location.pathname } });
+      } else if (err.response?.status === 409) {
         setRatingMessage('Você já avaliou este vídeo anteriormente.');
         setHasRated(true);
         try {
-          const userId = getSimulatedUserId();
-          const evalResponse = await axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
-          });
+          const evalResponse = await axios.get(
+            `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
+            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+          );
           if (evalResponse.data) {
-            setExistingEvaluation(evalResponse.data);
+            setExistingEvaluation({
+              ...evalResponse.data,
+              dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
+            });
             setUserRating(evalResponse.data.nota);
             setComment(evalResponse.data.comentario);
           }
@@ -373,13 +409,18 @@ const PlaylistVideo = () => {
       setRatingMessage('Removendo sua avaliação...');
 
       const token = localStorage.getItem('token');
-      if (!token) {
+      const userId = localStorage.getItem('userId');
+      
+      if (!token || !userId) {
         navigate('/login');
         return;
       }
 
       await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+          Authorization: `Bearer ${token}`,
+          'X-User-Id': userId
+        }
       });
 
       setExistingEvaluation(null);
@@ -388,13 +429,25 @@ const PlaylistVideo = () => {
       setComment('');
       setRatingMessage('Avaliação removida com sucesso!');
 
-      setVideoData(prev => ({
-        ...prev,
-        numeroAvaliacoes: Math.max((prev.numeroAvaliacoes || 1) - 1, 0),
-        mediaAvaliacoes: prev.numeroAvaliacoes <= 1 ? 0 :
-          ((prev.mediaAvaliacoes || 0) * (prev.numeroAvaliacoes || 0) - userRating) /
-          Math.max((prev.numeroAvaliacoes || 1) - 1, 1)
-      }));
+      setVideoData(prev => {
+        if (!prev || !prev.numeroAvaliacoes || prev.numeroAvaliacoes <= 1) {
+          return {
+            ...prev,
+            avaliacaoMedia: 0,
+            numeroAvaliacoes: 0
+          };
+        }
+        
+        const totalAvaliacoes = prev.numeroAvaliacoes - 1;
+        const somaAvaliacoes = prev.avaliacaoMedia * prev.numeroAvaliacoes - existingEvaluation.nota;
+        const novaMedia = somaAvaliacoes / totalAvaliacoes;
+        
+        return {
+          ...prev,
+          avaliacaoMedia: novaMedia,
+          numeroAvaliacoes: totalAvaliacoes
+        };
+      });
 
     } catch (err) {
       console.error('Erro ao remover avaliação:', err);
@@ -480,28 +533,28 @@ const PlaylistVideo = () => {
       <div className={styles.PlaylistVideoContainer}>
         <div className={styles.mainContent}>
           <div className={styles.videoPlayerContainer}>
-            <video
-              controls
-              autoPlay
-              className={styles.videoPlayer}
-              src={getVideoSource(videoData.key)}
-              onError={(e) => {
-                console.error('Erro ao carregar vídeo:', e);
-                e.target.parentElement.innerHTML = `
-                  <div class="${styles.videoError}">
-                    <p>Erro ao carregar o vídeo</p>
-                    <button
-                      class="${styles.retryButton}"
-                      onclick="window.location.reload()"
-                    >
-                      Tentar novamente
-                    </button>
-                  </div>
-                `;
-              }}
-            >
-              Seu navegador não suporta vídeos HTML5.
-            </video>
+          <video
+            controls
+            autoPlay
+            className={styles.videoPlayer}
+            src={getVideoSource(videoData.videoKey)} 
+            onError={(e) => {
+              console.error('Erro ao carregar vídeo:', e);
+              e.target.parentElement.innerHTML = `
+                <div class="${styles.videoError}">
+                  <p>Erro ao carregar o vídeo</p>
+                  <button
+                    class="${styles.retryButton}"
+                    onclick="window.location.reload()"
+                  >
+                    Tentar novamente
+                  </button>
+                </div>
+              `;
+            }}
+          >
+            Seu navegador não suporta vídeos HTML5.
+          </video>
           </div>
 
           <div className={styles.videoInfo}>
@@ -517,7 +570,7 @@ const PlaylistVideo = () => {
                   <span>{formatDate(videoData.dataPublicacao)}</span>
                 </span>
                 <span className={styles.videoStat}>
-                  • Média: {videoData.mediaAvaliacoes?.toFixed(1) || '0.0'} ({videoData.numeroAvaliacoes || 0} avaliações)
+                  <span>{videoData.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar size={12} /></span>
                 </span>
               </div>
 
@@ -660,7 +713,7 @@ const PlaylistVideo = () => {
           </div>
         </div>
         <div className={styles.sidebar}>
-          {playlistVideos.length > 0 && (
+          {playlistVideos.length > 0 ? (
             <div className={styles.playlistVideosSection}>
               <h3 className={styles.playlistVideosTitle}>
                 Vídeos da Playlist: {playlistName}
@@ -668,39 +721,57 @@ const PlaylistVideo = () => {
               <div className={styles.playlistVideosList}>
                 {playlistVideos
                   .filter((video) => video.videoId !== (currentVideoId || videoId))
-                  .map((video) => (
-                    <div
-                      key={video.id}
-                      className={styles.recommendedVideoCard}
-                      onClick={() => handleVideoClick(video)}
-                    >
-                      <div className={styles.thumbnailContainer}>
-                        <img
-                          src={getThumbnailSource(video)}
-                          alt={video.titulo}
-                          className={styles.thumbnail}
-                          onError={(e) => {
-                            e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
-                          }}
-                        />
-                        <span className={styles.videoDuration}>10:30</span>
+                  .length > 0 ? (
+                  playlistVideos
+                    .filter((video) => video.videoId !== (currentVideoId || videoId))
+                    .map((video) => (
+                      <div
+                        key={video.id}
+                        className={styles.recommendedVideoCard}
+                        onClick={() => handleVideoClick(video)}
+                      >
+                        <div className={styles.thumbnailContainer}>
+                          <img
+                            src={getThumbnailSource(video)}
+                            alt={video.titulo}
+                            className={styles.thumbnail}
+                            onError={(e) => {
+                              e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
+                            }}
+                          />
+                          <div className={styles.thumbnailRating}>
+                            <span className={styles.ratingStars}>
+                              {video.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar size={12} />
+                            </span>
+                          </div>
+                        </div>
+                        <div className={styles.recommendedVideoInfo}>
+                          <h4 className={styles.recommendedVideoTitle}>
+                            {video.titulo || 'Vídeo sem título'}
+                          </h4>
+                          <p className={styles.recommendedVideoCreator}>
+                            {video.criador?.nome || 'Criador desconhecido'}
+                          </p>
+                          <p className={styles.recommendedVideoStats}>
+                            {video.visualizacoes || 0} visualizações • {formatDate(video.dataPublicacao)}
+                          </p>
+                        </div>
                       </div>
-                      <div className={styles.recommendedVideoInfo}>
-                        <h4 className={styles.recommendedVideoTitle}>
-                          {video.titulo || 'Vídeo sem título'}
-                        </h4>
-                        <p className={styles.recommendedVideoCreator}>
-                          {video.criador?.nome || 'Criador desconhecido'}
-                        </p>
-                        <p className={styles.recommendedVideoStats}>
-                          {video.visualizacoes || 0} visualizações • {formatDate(video.dataPublicacao)}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                ) : (
+                  <p className={styles.emptyPlaylistMessage}>Nenhum outro vídeo nesta playlist</p>
+                )}
               </div>
             </div>
+          ) : (
+            <div className={styles.playlistVideosSection}>
+              <h3 className={styles.playlistVideosTitle}>
+                Vídeos da Playlist: {playlistName}
+              </h3>
+              <p className={styles.emptyPlaylistMessage}>Esta playlist não contém vídeos</p>
+            </div>
           )}
+
           <h3 className={styles.recommendationsTitle}>Recomendados</h3>
           <div className={styles.recommendedVideos}>
             {recommendedError ? (
@@ -712,15 +783,20 @@ const PlaylistVideo = () => {
                   className={styles.recommendedVideoCard}
                   onClick={() => handleRecommendedVideoClick(video)}
                 >
-                  <div className={styles.thumbnailContainer}>
-                    <img
-                      src={getThumbnailSource(video)}
-                      alt={video.titulo}
-                      className={styles.thumbnail}
-                      onError={(e) => {
-                        e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel'
-                      }}
-                    />
+                <div className={styles.thumbnailContainer}>
+                  <img
+                    src={getThumbnailSource(video)}
+                    alt={video.titulo}
+                    className={styles.thumbnail}
+                    onError={(e) => {
+                      e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
+                    }}
+                  />
+                  <div className={styles.thumbnailRating}>
+                    <span className={styles.ratingStars}>
+                      {video.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar size={12} />
+                    </span>
+                  </div>
                     <span className={styles.videoDuration}>10:30</span>
                   </div>
                   <div className={styles.recommendedVideoInfo}>

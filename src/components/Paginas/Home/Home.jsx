@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import styles from './Home.module.css';
 import Layout from '../../Layout/Layout';
 import { HiOutlineSearch, HiArrowRight } from 'react-icons/hi';
+import { FaStar } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import api from '../../../api/axios-config';
 
@@ -117,11 +118,11 @@ const Home = () => {
     if (videos.length === 0) {
       return <p>Nenhum vídeo encontrado.</p>;
     }
-
+  
     const videosToDisplay = videos.slice(startIndex, startIndex + 10);
     const hasMoreVideos = (startIndex + 10) < videos.length;
     const hasPreviousVideos = startIndex > 0;
-
+  
     return (
       <div className={styles.carouselContainer}>
         {hasPreviousVideos && (
@@ -132,7 +133,7 @@ const Home = () => {
             <HiArrowRight style={{ transform: 'rotate(180deg)' }} />
           </button>
         )}
-
+  
         <div className={styles.recommendedVideos}>
           {videosToDisplay.length > 0 ? (
             videosToDisplay.map((video) => (
@@ -150,7 +151,11 @@ const Home = () => {
                       e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
                     }}
                   />
-                  <span className={styles.videoDuration}>10:30</span>
+                  <div className={styles.thumbnailRating}>
+                    <span className={styles.ratingStars}>
+                      {video.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar size={12} />
+                    </span>
+                  </div>
                 </div>
                 <div className={styles.recommendedVideoInfo}>
                   <h4 className={styles.recommendedVideoTitle}>
@@ -169,7 +174,7 @@ const Home = () => {
             <p className={styles.noVideosMessage}>Nenhum vídeo disponível nesta seção.</p>
           )}
         </div>
-
+  
         {hasMoreVideos && (
           <button
             className={`${styles.carouselButton} ${styles.nextButton}`}
