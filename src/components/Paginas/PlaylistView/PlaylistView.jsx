@@ -92,31 +92,33 @@ const PlaylistView = () => {
         </div>
 
         <div className={styles.listaVideos}>
-          {playlist.videos && playlist.videos.length > 0 ? (
-            playlist.videos.map((video, index) => (
-              <div
-                key={`${video.id || video.videoId || index}`}
-                className={styles.itemVideo}
-                onClick={() => handleVideoClick(video)}
-              >
+        {playlist.videos && playlist.videos.length > 0 ? (
+          playlist.videos.map((video, index) => (
+            <div
+              key={`${video.id || video.videoId || index}`}
+              className={styles.itemVideo}
+              onClick={() => handleVideoClick(video)}
+            >
+              <div className={styles.videoInfo}>
                 <h3 className={styles.tituloVideo}>
-                  {video.videoTitulo || `Vídeo ${index + 1}`} 
+                  {video.titulo || video.videoTitulo || `Vídeo ${index + 1}`}
                 </h3>
-                <img
-                  src={getThumbnailSource(video)}
-                  alt={video.videoTitulo || `Vídeo ${index + 1}`} 
-                  className={styles.thumbnail}
-                  onError={(e) => {
-                    e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
-                  }}
-                />
               </div>
-            ))
-          ) : (
-            <div className={styles.emptyPlaylist}>
-              <p>Esta playlist está vazia</p>
+              <img
+                src={getThumbnailSource(video)}
+                alt={video.titulo || video.videoTitulo || `Vídeo ${index + 1}`}
+                className={styles.thumbnail}
+                onError={(e) => {
+                  e.target.src = 'https://placehold.co/300x169?text=Thumbnail+Indispon%C3%ADvel';
+                }}
+              />
             </div>
-          )}
+          ))
+        ) : (
+          <div className={styles.emptyPlaylist}>
+            <p>Esta playlist está vazia</p>
+          </div>
+        )}
         </div>
       </div>
     </div>

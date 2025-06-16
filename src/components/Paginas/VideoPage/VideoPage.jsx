@@ -231,7 +231,7 @@ const VideoPage = () => {
               `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
-
+          
             if (evalResponse.data && !isEmpty(evalResponse.data)) {
               const evaluationData = {
                 ...evalResponse.data,
@@ -242,9 +242,15 @@ const VideoPage = () => {
               setHasRated(true);
               setUserRating(evalResponse.data.nota);
               setComment(evalResponse.data.comentario);
+            } else {
+              setExistingEvaluation(null);
+              setHasRated(false);
             }
           } catch (err) {
-            if (err.response?.status !== 404) {
+            if (err.response?.status === 404) {
+              setExistingEvaluation(null);
+              setHasRated(false);
+            } else {
               console.error('Erro ao buscar avaliação:', err);
             }
           }
@@ -326,7 +332,6 @@ const VideoPage = () => {
     }
   };
 
-  // Adicione esta função junto com as outras funções utilitárias no componente
 const fetchMediaAvaliacoes = async (videoId) => {
   try {
     const token = localStorage.getItem('token');
@@ -339,7 +344,6 @@ const fetchMediaAvaliacoes = async (videoId) => {
   }
 };
 
-// Atualize a função handleSubmitEvaluation para usar o novo endpoint
 const handleSubmitEvaluation = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -372,7 +376,6 @@ const handleSubmitEvaluation = async () => {
 
     setRatingMessage('Enviando sua avaliação...');
 
-    // 1. Envia a avaliação
     const response = await axios.post('/avaliacoes/create', {
       userId: Number(userId),
       videoId: Number(videoId),
@@ -386,7 +389,6 @@ const handleSubmitEvaluation = async () => {
     });
 
     if (response.data) {
-      // 2. Busca a avaliação atualizada
       const refreshedEval = await axios.get(
         `/avaliacoes/usuario/${userId}/video/${videoId}`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -402,10 +404,8 @@ const handleSubmitEvaluation = async () => {
         setComment(refreshedEval.data.comentario);
       }
       
-      // 3. Busca a média atualizada usando o novo endpoint
       const mediaAtualizada = await fetchMediaAvaliacoes(videoId);
       
-      // 4. Atualiza o estado do vídeo com a nova média
       setVideoData(prev => ({
         ...prev,
         avaliacaoMedia: mediaAtualizada
@@ -447,7 +447,6 @@ const handleSubmitEvaluation = async () => {
   }
 };
 
-// Atualize também a função handleDeleteEvaluation
 const handleDeleteEvaluation = async () => {
   if (!existingEvaluation) return;
 
@@ -463,7 +462,6 @@ const handleDeleteEvaluation = async () => {
       return;
     }
 
-    // 1. Remove a avaliação
     await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
       headers: { 
         Authorization: `Bearer ${token}`,
@@ -471,16 +469,13 @@ const handleDeleteEvaluation = async () => {
       }
     });
 
-    // 2. Limpa o estado local
     setExistingEvaluation(null);
     setHasRated(false);
     setUserRating(0);
     setComment('');
     
-    // 3. Busca a média atualizada usando o novo endpoint
     const mediaAtualizada = await fetchMediaAvaliacoes(videoId);
     
-    // 4. Atualiza o estado do vídeo com a nova média
     setVideoData(prev => ({
       ...prev,
       avaliacaoMedia: mediaAtualizada
