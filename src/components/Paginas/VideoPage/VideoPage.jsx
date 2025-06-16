@@ -40,6 +40,7 @@ const VideoPage = () => {
   const [showPlaylistSelect, setShowPlaylistSelect] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState('');
   const [videoViews, setVideoViews] = useState(0);
+  
 
   const isEmpty = (obj) => {
     return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
