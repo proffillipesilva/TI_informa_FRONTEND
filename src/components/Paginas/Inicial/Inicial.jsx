@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // Importe useEffect
 import { useNavigate } from 'react-router-dom';
 import imagem from './Foto.jpg'
 import styles from './Inicial.module.css';
 import { auth, googleProvider } from '../../../firebaseConfig';
 import { signInWithPopup } from 'firebase/auth';
 import axios from '../../../api/axios-config';
-import Layout from '../../Layout/Layout'; 
+import Layout from '../../Layout/Layout';
 
 const Perguntas = [
   "Qual foi a sua primeira viagem inesquecível?",
@@ -40,9 +40,21 @@ const Inicial = () => {
   const [answer, setAnswer] = useState('');
   const [showInteresses, setShowInteresses] = useState(false);
   const [interessesSelecionados, setInteressesSelecionados] = useState([]);
-  const [isNewUser, setIsNewUser] = useState(false); 
+  const [isNewUser, setIsNewUser] = useState(false);
   const [loading, setLoading] = useState(false);
   const navegarPara = useNavigate();
+
+  // NOVO: Adicione este useEffect para verificar o token ao carregar a página
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Se um token existir, significa que o usuário está logado
+      // Você pode adicionar uma validação de token aqui se necessário,
+      // mas para redirecionamento imediato, a presença do token já é suficiente.
+      setUsuarioLogado(true);
+      navegarPara('/home');
+    }
+  }, [navegarPara]); // O array vazio de dependências garante que isso rode apenas uma vez na montagem
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -75,45 +87,45 @@ const Inicial = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-  
+
     try {
       const response = await axios.post('/auth/login', {
         email: formData.email,
         senha: formData.password,
       });
-  
+
       const token = response.data.token;
       if (!token) {
         throw new Error('Token não recebido do servidor');
       }
-  
+
       localStorage.setItem('token', token);
-  
+
       const userResponse = await axios.get('/auth/me', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-  
+
       if (!userResponse.data.id) {
         throw new Error('ID do usuário não encontrado');
       }
-  
+
       localStorage.setItem('userId', userResponse.data.id.toString());
       localStorage.setItem('userData', JSON.stringify(userResponse.data));
-      localStorage.setItem('token', token); 
-  
+      localStorage.setItem('token', token);
+
       if (response.data.cadastroCompleto) {
         navegarPara('/home');
       } else {
         navegarPara('/home');
       }
-  
+
     } catch (err) {
       console.error('Erro no login:', err);
-      setError(err.response?.data?.message || 
-              err.message || 
-              'Erro ao fazer login');
+      setError(err.response?.data?.message ||
+                err.message ||
+                'Erro ao fazer login');
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
     } finally {
@@ -215,18 +227,18 @@ const Inicial = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-    
+
     if (!selectedQuestion || !answer) {
       setError('Pergunta e resposta de segurança são obrigatórias.');
       setLoading(false);
       return;
     }
-  
+
     const pergunta_resposta = [{
       pergunta: selectedQuestion,
       resposta: answer
     }];
-  
+
     try {
       const response = await axios.post('/auth/register/google', {
         idToken: googleUserData.idToken,
@@ -235,14 +247,14 @@ const Inicial = () => {
         nome: googleUserData.name,
         email: googleUserData.email
       });
-  
+
       localStorage.setItem('token', response.data.token);
       setUsuarioLogado(true);
       navegarPara('/home');
     } catch (err) {
       if (err.response && err.response.data) {
-        setError(typeof err.response.data === 'object' ? 
-          err.response.data.message || 'Erro ao registrar usuário' : 
+        setError(typeof err.response.data === 'object' ?
+          err.response.data.message || 'Erro ao registrar usuário' :
           err.response.data);
       } else if (err.request) {
         setError('Sem resposta do servidor');
@@ -266,6 +278,13 @@ const Inicial = () => {
     }
   };
 
+  // Se `usuarioLogado` for verdadeiro, o usuário já está logado e o redirecionamento
+  // para `/home` já deveria ter acontecido no `useEffect`.
+  // Este bloco `if (usuarioLogado)` só será renderizado brevemente caso o `useEffect`
+  // ainda não tenha disparado o redirecionamento, ou se houver um atraso na navegação.
+  // No entanto, para evitar duplicação de lógica ou comportamento inesperado,
+  // é melhor que o redirecionamento aconteça o mais cedo possível.
+  // A lógica de `useEffect` no início do componente é a maneira mais robusta para isso.
   if (usuarioLogado) {
     return (
       <div>
@@ -347,7 +366,7 @@ const Inicial = () => {
       </div>
     );
   }
-  
+
   if (isNewUser && showInteresses) {
     return (
       <div>
