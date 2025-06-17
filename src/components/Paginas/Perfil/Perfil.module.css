@@ -411,6 +411,7 @@
   width: 65%;
   height: 95px;
   margin-top: 10px;
+  margin-bottom: 20px; /* Aumente este valor para dar mais espaço */
   padding: 10px;
   font-size: 14px;
   resize: none;

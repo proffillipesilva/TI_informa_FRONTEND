@@ -38,7 +38,7 @@ const SuccessModal = ({ show, message, onClose }) => {
     if (show) {
       timer = setTimeout(() => {
         onClose();
-      }, 2000); 
+      }, 2000);
     }
     return () => clearTimeout(timer);
   }, [show, onClose]);
@@ -175,8 +175,10 @@ const Perfil = () => {
         setIsCriador(response.data.isCriador || false);
         setIsAdmin(response.data.isAdmin || false);
         setInteressesUsuario(response.data.interesses);
+        console.log("Resposta do /auth/me:", response.data);
         setDescricaoUsuario(response.data.descricao || '');
         setOriginalDescricaoUsuario(response.data.descricao || '');
+
 
         if (response.data.isCriador) {
           setSecoesAtivas(['videos', 'playlists']);
@@ -220,17 +222,18 @@ const Perfil = () => {
   }, [navigate]);
 
   const aoClicarEditar = async () => {
+    const token = localStorage.getItem('token');
+
     if (isEditing) {
       try {
-        const token = localStorage.getItem('token');
         await axios.put(
-          '/auth/me',
+          '/usuario/descricao',
           { descricao: descricaoUsuario },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         alert('Descrição atualizada com sucesso!');
-        setIsEditing(false);
         setOriginalDescricaoUsuario(descricaoUsuario);
+        setIsEditing(false);
       } catch (error) {
         console.error('Erro ao atualizar descrição:', error);
         alert('Erro ao atualizar descrição: ' + (error.response?.data?.message || 'Tente novamente mais tarde'));
@@ -239,6 +242,7 @@ const Perfil = () => {
       setIsEditing(true);
     }
   };
+
 
   const aoClicarCancelarEdicao = () => {
     setDescricaoUsuario(originalDescricaoUsuario);
@@ -325,43 +329,43 @@ const Perfil = () => {
     const token = localStorage.getItem('token');
 
     try {
-        const response = await axios.delete(`/file/delete/${videoToDelete.id}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        });
+      const response = await axios.delete(`/file/delete/${videoToDelete.id}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-        const videosResponse = await axios.get('/file/meus-videos', {
-            headers: { Authorization: `Bearer ${token}` }
-        });
-        setVideosUsuario(Array.isArray(videosResponse.data) ? videosResponse.data : []);
+      const videosResponse = await axios.get('/file/meus-videos', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setVideosUsuario(Array.isArray(videosResponse.data) ? videosResponse.data : []);
 
-        setShowConfirmVideoModal(false);
-        setVideoToDelete(null);
-        setVideoSuccessMessage(response.data?.message || 'Vídeo excluído com sucesso!');
-        setShowVideoSuccessModal(true);
+      setShowConfirmVideoModal(false);
+      setVideoToDelete(null);
+      setVideoSuccessMessage(response.data?.message || 'Vídeo excluído com sucesso!');
+      setShowVideoSuccessModal(true);
     } catch (error) {
-        console.error('Erro ao excluir vídeo:', error);
-        
-        try {
-            const videosResponse = await axios.get('/file/meus-videos', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const videoStillExists = videosResponse.data.some(v => v.id === videoToDelete.id);
-            
-            if (!videoStillExists) {
-                setVideosUsuario(videosResponse.data);
-                setShowConfirmVideoModal(false);
-                setVideoToDelete(null);
-                setVideoSuccessMessage('Vídeo excluído com sucesso!');
-                setShowVideoSuccessModal(true);
-            } else {
-                alert('Erro ao excluir vídeo: ' + (error.response?.data?.error || error.message || 'Tente novamente mais tarde'));
-            }
-        } catch (err) {
-            console.error('Erro ao verificar vídeos:', err);
-            alert('Erro ao verificar status do vídeo: ' + err.message);
+      console.error('Erro ao excluir vídeo:', error);
+
+      try {
+        const videosResponse = await axios.get('/file/meus-videos', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const videoStillExists = videosResponse.data.some(v => v.id === videoToDelete.id);
+
+        if (!videoStillExists) {
+          setVideosUsuario(videosResponse.data);
+          setShowConfirmVideoModal(false);
+          setVideoToDelete(null);
+          setVideoSuccessMessage('Vídeo excluído com sucesso!');
+          setShowVideoSuccessModal(true);
+        } else {
+          alert('Erro ao excluir vídeo: ' + (error.response?.data?.error || error.message || 'Tente novamente mais tarde'));
         }
+      } catch (err) {
+        console.error('Erro ao verificar vídeos:', err);
+        alert('Erro ao verificar status do vídeo: ' + err.message);
+      }
     }
-};
+  };
 
   const cancelDeletarVideo = () => {
     setShowConfirmVideoModal(false);
@@ -720,6 +724,7 @@ const Perfil = () => {
               value={descricaoUsuario}
               onChange={e => setDescricaoUsuario(e.target.value)}
               readOnly={!isEditing}
+              maxLength={255}
             />
             {isCriador ? (
               <p className={styles.tipoUsuario}>Criador de Conteúdo</p>
