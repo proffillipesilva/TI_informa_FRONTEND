@@ -7,13 +7,13 @@ const Assinatura = () => {
   const planos = [
     {
       titulo: 'Inscrição',
-      descricao: ['Vantagem 1', 'Vantagem 2', 'Vantagem 3'],
+      descricao: ['Suporte padrão', 'Recebimento de newsletter mensal', 'Certificado de participação'],
       tipo: 'Mensal',
       preco: 'R$ 4,00',
     },
     {
       titulo: 'Inscrição Plus',
-      descricao: ['Vantagem 1', 'Vantagem 2', 'Vantagem 3'],
+      descricao: ['Acesso a conteudo exclusivo', 'Participação de sorteios', 'Descontos em eventos e workshops'],
       tipo: 'Mensal',
       preco: 'R$ 10,00',
     },
