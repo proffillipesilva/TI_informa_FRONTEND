@@ -40,6 +40,7 @@ const VideoPage = () => {
   const [showPlaylistSelect, setShowPlaylistSelect] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState('');
   const [videoViews, setVideoViews] = useState(0);
+  
 
   const isEmpty = (obj) => {
     return obj && Object.keys(obj).length === 0 && obj.constructor === Object;
@@ -231,7 +232,7 @@ const VideoPage = () => {
               `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
               { headers: { Authorization: `Bearer ${token}` } }
             );
-
+          
             if (evalResponse.data && !isEmpty(evalResponse.data)) {
               const evaluationData = {
                 ...evalResponse.data,
@@ -242,9 +243,15 @@ const VideoPage = () => {
               setHasRated(true);
               setUserRating(evalResponse.data.nota);
               setComment(evalResponse.data.comentario);
+            } else {
+              setExistingEvaluation(null);
+              setHasRated(false);
             }
           } catch (err) {
-            if (err.response?.status !== 404) {
+            if (err.response?.status === 404) {
+              setExistingEvaluation(null);
+              setHasRated(false);
+            } else {
               console.error('Erro ao buscar avaliação:', err);
             }
           }
@@ -326,174 +333,164 @@ const VideoPage = () => {
     }
   };
 
-  const handleSubmitEvaluation = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-  
-      if (!userId || userId === "undefined" || isNaN(userId)) {
-        setRatingMessage('ID de usuário inválido. Faça login novamente.');
-        localStorage.removeItem('userId'); 
-        navigate('/login');
-        return;
+const fetchMediaAvaliacoes = async (videoId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    const response = await axios.get(`/avaliacoes/video/${videoId}/media`, { headers });
+    return response.data;
+  } catch (error) {
+    console.error('Erro ao buscar média de avaliações:', error);
+    return 0.0;
+  }
+};
+
+const handleSubmitEvaluation = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    if (!userId || userId === "undefined" || isNaN(userId)) {
+      setRatingMessage('ID de usuário inválido. Faça login novamente.');
+      localStorage.removeItem('userId');
+      navigate('/login');
+      return;
+    }
+
+    if (hasRated) {
+      setRatingMessage('Você já avaliou este vídeo.');
+      setTimeout(() => setRatingMessage(''), 3000);
+      return;
+    }
+
+    if (userRating === 0) {
+      setRatingMessage('Por favor, selecione uma nota (estrelas).');
+      setTimeout(() => setRatingMessage(''), 3000);
+      return;
+    }
+
+    if (!comment.trim()) {
+      setRatingMessage('Por favor, adicione um comentário.');
+      setTimeout(() => setRatingMessage(''), 3000);
+      return;
+    }
+
+    setRatingMessage('Enviando sua avaliação...');
+
+    const response = await axios.post('/avaliacoes/create', {
+      userId: Number(userId),
+      videoId: Number(videoId),
+      nota: userRating,
+      comentario: comment
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'application/json'
       }
-  
-      const numericUserId = Number(userId);
+    });
+
+    if (response.data) {
+      const refreshedEval = await axios.get(
+        `/avaliacoes/usuario/${userId}/video/${videoId}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
       
-      if (hasRated) {
-        setRatingMessage('Você já avaliou este vídeo.');
-        setTimeout(() => setRatingMessage(''), 3000);
-        return;
-      }
-  
-      if (userRating === 0) {
-        setRatingMessage('Por favor, selecione uma nota (estrelas).');
-        setTimeout(() => setRatingMessage(''), 3000);
-        return;
-      }
-  
-      if (!comment.trim()) {
-        setRatingMessage('Por favor, adicione um comentário.');
-        setTimeout(() => setRatingMessage(''), 3000);
-        return;
-      }
-  
-      setRatingMessage('Enviando sua avaliação...');
-  
-      const response = await axios.post('/avaliacoes/create', {
-        userId: numericUserId,
-        videoId: Number(videoId), 
-        nota: userRating,
-        comentario: comment
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-      
-      if (response.data) {
-        const refreshedEval = await axios.get(
-          `/avaliacoes/usuario/${numericUserId}/video/${videoId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        
-        if (refreshedEval.data) {
-          setExistingEvaluation({
-            ...refreshedEval.data,
-            dataAvaliacao: refreshedEval.data.dataAvaliacao || new Date().toISOString()
-          });
-          setHasRated(true);
-          setUserRating(refreshedEval.data.nota);
-          setComment(refreshedEval.data.comentario);
-        }
-        
-        setRatingMessage('Obrigado pela sua avaliação!');
-        
-        setVideoData(prev => {
-          if (!prev) return prev;
-          
-          const totalAvaliacoes = (prev.numeroAvaliacoes || 0) + 1;
-          const somaAvaliacoes = (prev.avaliacaoMedia || 0) * (prev.numeroAvaliacoes || 0) + userRating;
-          const novaMedia = somaAvaliacoes / totalAvaliacoes;
-          
-          return {
-            ...prev,
-            avaliacaoMedia: novaMedia,
-            numeroAvaliacoes: totalAvaliacoes
-          };
+      if (refreshedEval.data) {
+        setExistingEvaluation({
+          ...refreshedEval.data,
+          dataAvaliacao: refreshedEval.data.dataAvaliacao || new Date().toISOString()
         });
-      }
-    } catch (err) {
-      console.error('Erro ao avaliar o vídeo:', err);
-      if (err.response?.status === 401) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('userId');
-        setRatingMessage('Sessão expirada. Faça login novamente.');
-        navigate('/login', { state: { from: location.pathname } });
-      } else if (err.response?.status === 409) {
-        setRatingMessage('Você já avaliou este vídeo anteriormente.');
         setHasRated(true);
-        try {
-          const evalResponse = await axios.get(
-            `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
-            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-          );
-          if (evalResponse.data) {
-            setExistingEvaluation({
-              ...evalResponse.data,
-              dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
-            });
-            setUserRating(evalResponse.data.nota);
-            setComment(evalResponse.data.comentario);
-          }
-        } catch (fetchErr) {
-          console.error('Erro ao buscar avaliação existente:', fetchErr);
-        }
-      } else {
-        setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
+        setUserRating(refreshedEval.data.nota);
+        setComment(refreshedEval.data.comentario);
       }
-    } finally {
-      setTimeout(() => setRatingMessage(''), 3000);
-    }
-  };
-
-  const handleDeleteEvaluation = async () => {
-    if (!existingEvaluation) return;
-
-    try {
-      setIsDeleting(true);
-      setRatingMessage('Removendo sua avaliação...');
-
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
       
-      if (!token || !userId) {
-        navigate('/login');
-        return;
-      }
+      const mediaAtualizada = await fetchMediaAvaliacoes(videoId);
+      
+      setVideoData(prev => ({
+        ...prev,
+        avaliacaoMedia: mediaAtualizada
+      }));
 
-      await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'X-User-Id': userId
-        }
-      });
-
-      setExistingEvaluation(null);
-      setHasRated(false);
-      setUserRating(0);
-      setComment('');
-      setRatingMessage('Avaliação removida com sucesso!');
-
-      setVideoData(prev => {
-        if (!prev || !prev.numeroAvaliacoes || prev.numeroAvaliacoes <= 1) {
-          return {
-            ...prev,
-            avaliacaoMedia: 0,
-            numeroAvaliacoes: 0
-          };
-        }
-        
-        const totalAvaliacoes = prev.numeroAvaliacoes - 1;
-        const somaAvaliacoes = prev.avaliacaoMedia * prev.numeroAvaliacoes - existingEvaluation.nota;
-        const novaMedia = somaAvaliacoes / totalAvaliacoes;
-        
-        return {
-          ...prev,
-          avaliacaoMedia: novaMedia,
-          numeroAvaliacoes: totalAvaliacoes
-        };
-      });
-
-    } catch (err) {
-      console.error('Erro ao remover avaliação:', err);
-      setRatingMessage(err.response?.data?.message || 'Erro ao remover avaliação. Tente novamente.');
-    } finally {
-      setIsDeleting(false);
-      setTimeout(() => setRatingMessage(''), 3000);
+      setRatingMessage('Obrigado pela sua avaliação!');
     }
-  };
+  } catch (err) {
+    console.error('Erro ao avaliar o vídeo:', err);
+    if (err.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('userId');
+      setRatingMessage('Sessão expirada. Faça login novamente.');
+      navigate('/login', { state: { from: location.pathname } });
+    } else if (err.response?.status === 409) {
+      setRatingMessage('Você já avaliou este vídeo anteriormente.');
+      setHasRated(true);
+      try {
+        const evalResponse = await axios.get(
+          `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
+          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+        );
+        if (evalResponse.data) {
+          setExistingEvaluation({
+            ...evalResponse.data,
+            dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
+          });
+          setUserRating(evalResponse.data.nota);
+          setComment(evalResponse.data.comentario);
+        }
+      } catch (fetchErr) {
+        console.error('Erro ao buscar avaliação existente:', fetchErr);
+      }
+    } else {
+      setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
+    }
+  } finally {
+    setTimeout(() => setRatingMessage(''), 3000);
+  }
+};
+
+const handleDeleteEvaluation = async () => {
+  if (!existingEvaluation) return;
+
+  try {
+    setIsDeleting(true);
+    setRatingMessage('Removendo sua avaliação...');
+
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      navigate('/login');
+      return;
+    }
+
+    await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'X-User-Id': userId
+      }
+    });
+
+    setExistingEvaluation(null);
+    setHasRated(false);
+    setUserRating(0);
+    setComment('');
+    
+    const mediaAtualizada = await fetchMediaAvaliacoes(videoId);
+    
+    setVideoData(prev => ({
+      ...prev,
+      avaliacaoMedia: mediaAtualizada
+    }));
+
+    setRatingMessage('Avaliação removida com sucesso!');
+  } catch (err) {
+    console.error('Erro ao remover avaliação:', err);
+    setRatingMessage(err.response?.data?.message || 'Erro ao remover avaliação. Tente novamente.');
+  } finally {
+    setIsDeleting(false);
+    setTimeout(() => setRatingMessage(''), 3000);
+  }
+};
 
   const handleRecommendedVideoClick = useCallback((video) => {
     if (!video) return;
@@ -592,7 +589,7 @@ const VideoPage = () => {
                   <span className={styles.videoStat}>
                     <span>{formatDate(videoData.dataPublicacao)}</span>
                   </span>
-                <div className={styles.ratingContainer}>
+                  <div className={styles.ratingContainer}>
                   <span className={styles.videoStat}>
                     {videoData.avaliacaoMedia?.toFixed(1) || '0.0'} <FaStar />
                   </span>
