@@ -4,7 +4,7 @@
     require('dotenv').config()
 
 
-const firebaseConfig = {Add commentMore actions
+const firebaseConfig = {
   apiKey: process.env.VITE_FIREBASE_API_KEY, // ou process.env.REACT_APP_FIREBASE_API_KEY
   authDomain: "fir-3mod25.firebaseapp.com",
   projectId: "fir-3mod25",
