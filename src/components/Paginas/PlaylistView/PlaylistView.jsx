@@ -60,23 +60,28 @@ const PlaylistView = () => {
   };
 
   if (loading) return (
-    <div className={styles.container}>
-      <Layout />
-      <div className={styles.loading}>Carregando...</div>
+    <div><Layout />
+      <div className={styles.container}>
+        <div className={styles.loading}>Carregando...</div>
+      </div>
     </div>
   );
 
   if (error) return (
-    <div className={styles.container}>
-      <Layout />
-      <div className={styles.error}>{error}</div>
+    <div><Layout />
+      <div className={styles.container}>
+        <Layout />
+        <div className={styles.error}>{error}</div>
+      </div>
     </div>
   );
 
   if (!playlist) return (
-    <div className={styles.container}>
-      <Layout />
-      <div className={styles.error}>Playlist não encontrada</div>
+    <div><Layout />
+      <div className={styles.container}>
+        <Layout />
+        <div className={styles.error}>Playlist não encontrada</div>
+      </div>
     </div>
   );
 

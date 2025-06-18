@@ -119,38 +119,58 @@
   font-weight: 500;
 }
 
+.creatorLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.creatorName {
+  font-size: 0.95rem;
+  margin: 0 0 4px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.subscriberContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: -2px; 
+}
+
 .subscriberCount {
   font-size: 0.75rem;
   color: #666;
-  margin: 2px 0 0 0;
+  margin: 0;
+  position: relative;
 }
 
 .subscribeButton {
-  background-color: #065fd4;
+  background-color: #ff0000;
   color: white;
   border: none;
-  padding: 7px 14px;
-  border-radius: 18px;
+  padding: 5px 10px;
+  border-radius: 20px; 
   cursor: pointer;
   font-weight: 500;
-  transition: background-color 0.3s;
-  min-width: 100px;
-  margin-top: 5px;
+  transition: all 0.3s;
+  font-size: 0.85rem;
+  min-width: 110px; 
 }
 
 .subscribeButton:hover {
-  background-color: #054daa;
+  background-color: #cc0000;
 }
 
 .subscribeButton.subscribed {
   background-color: #606060;
 }
 
-.videoDescription {
-  padding: 10px 0;
-  color: #333;
-  line-height: 1.5;
+.subscribeButton.subscribed:hover {
+  background-color: #404040;
 }
+
 
 .evaluationSection {
   margin-top: 15px;
@@ -1996,311 +2016,337 @@
     font-size: 1.1rem;
   }
   }
-
-@media (min-width: 1822px) and (max-width: 1920px) {
-.videoPageContainer {
-  flex-direction: row;
-  padding: 30px;
-  gap: 30px;
-  max-width: 95%;
-  margin-top: 100px;
-  margin-left: 60px;
-}
-
-.sidebar {
-  max-width: 500px;
-  margin-left: 30px;
-}
-
-.videoPlayerContainer {
-  border-radius: 16px;
-}
-
-.videoInfoContainer {
-  border-radius: 16px;
-  padding: 30px;
-  margin-top: 30px;
-}
-
-.videoTitle {
-  font-size: 2rem;
-}
-
-.videoStatsContainer {
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.videoMetadata {
-  font-size: 1.1rem;
-  margin-bottom: 0;
-}
-
-.ratingContainer {
-  margin-left: auto;
-  margin-top: 0;
-}
-
-.creatorInfo {
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 0;
-  margin: 20px 0;
-}
-
-.creatorAvatar {
-  width: 64px;
-  height: 64px;
-}
-
-.creatorName {
-  font-size: 1.3rem;
-}
-
-.subscriberCount {
-  font-size: 1rem;
-}
-
-.subscribeButton {
-  padding: 12px 24px;
-  min-width: 150px;
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
-.evaluationSection {
-  padding: 30px;
-}
-
-.evaluationTitle {
-  font-size: 1.5rem;
-}
-
-.star {
-  font-size: 32px;
-}
-
-.commentInput {
-  padding: 16px;
-  min-height: 120px;
-  font-size: 1.1rem;
-}
-
-.submitEvaluationButton {
-  padding: 14px 28px;
-  font-size: 1.1rem;
-}
-
-.deleteEvaluationButton {
-  padding: 12px 24px;
-  font-size: 1.1rem;
-}
-
-.playlistVideosSection {
-  padding: 20px;
-  border-radius: 16px;
-}
-
-.playlistVideosTitle {
-  font-size: 1.5rem;
-}
-
-.emptyPlaylistMessage {
-  padding: 20px;
-  font-size: 1.1rem;
-}
-
-.recommendationsTitle {
-  font-size: 1.5rem;
-}
-
-.thumbnailContainer {
-  width: 220px;
-}
-
-.thumbnail {
-  height: 124px;
-}
-
-.recommendedVideoTitle {
-  font-size: 1.2rem;
-}
-
-.recommendedVideoCreator {
-  font-size: 1rem;
-}
-
-.recommendedVideoStats {
-  font-size: 0.9rem;
-}
-
-.loadingSpinner {
-  width: 60px;
-  height: 60px;
-}
-
-.errorMessage {
-  font-size: 1.2rem;
-  max-width: 80%;
-}
-
-.backButton {
-  padding: 14px 28px;
-  font-size: 1.1rem;
-}.videoPageContainer {
-  flex-direction: row;
-  padding: 30px;
-  gap: 30px;
-  margin-top: 100px;
-}
-
-.sidebar {
-  max-width: 500px;
-  margin-left: 30px;
-}
-
-.videoPlayerContainer {
-  border-radius: 16px;
-}
-
-.videoInfoContainer {
-  border-radius: 16px;
-  padding: 30px;
-  margin-top: 30px;
-}
-
-.videoTitle {
-  font-size: 1.5rem;
-}
-
-.videoStatsContainer {
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.videoMetadata {
-  font-size: 1.1rem;
-  margin-bottom: 0;
-}
-
-.ratingContainer {
-  margin-left: auto;
-  margin-top: 0;
-}
-
-.creatorInfo {
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  gap: 20px;
-  padding: 20px 0;
-  margin: 20px 0;
-}
-
-.creatorAvatar {
-  width: 64px;
-  height: 64px;
-}
-
-.creatorName {
-  font-size: 1.3rem;
-}
-
-.subscriberCount {
-  font-size: 1rem;
-}
-
-.subscribeButton {
-  padding: 12px 24px;
-  min-width: 150px;
-  margin-top: 0;
-  font-size: 1.1rem;
-}
-
-.evaluationSection {
-  padding: 30px;
-}
-
-.evaluationTitle {
-  font-size: 1.5rem;
-}
-
-.star {
-  font-size: 32px;
-}
-
-.commentInput {
-  padding: 16px;
-  min-height: 120px;
-  font-size: 1.1rem;
-}
-
-.submitEvaluationButton {
-  padding: 14px 28px;
-  font-size: 1.1rem;
-}
-
-.deleteEvaluationButton {
-  padding: 12px 24px;
-  font-size: 1.1rem;
-}
-
-.playlistVideosSection {
-  padding: 20px;
-  border-radius: 16px;
-}
-
-.playlistVideosTitle {
-  font-size: 1.5rem;
-}
-
-.emptyPlaylistMessage {
-  padding: 20px;
-  font-size: 1.1rem;
-}
-
-.recommendationsTitle {
-  font-size: 1.5rem;
-}
-
-.thumbnailContainer {
-  width: 220px;
-}
-
-.thumbnail {
-  height: 124px;
-}
-
-.recommendedVideoTitle {
-  font-size: 1.2rem;
-}
-
-.recommendedVideoCreator {
-  font-size: 1rem;
-}
-
-.recommendedVideoStats {
-  font-size: 0.9rem;
-}
-
-.loadingSpinner {
-  width: 60px;
-  height: 60px;
-}
-
-.errorMessage {
-  font-size: 1.2rem;
-  max-width: 80%;
-}
-
-.backButton {
-  padding: 14px 28px;
-  font-size: 1.1rem;
-}
+  @media (min-width: 1822px) and (max-width: 1920px) {
+    .videoPageContainer {
+      flex-direction: row;
+      padding: 30px;
+      gap: 30px;
+      max-width: 95%;
+      margin-top: 100px;
+      margin-left: 60px;
+    }
+    
+    .sidebar {
+      max-width: 500px;
+      margin-left: 30px;
+    }
+    
+    .videoPlayerContainer {
+      border-radius: 16px;
+    }
+    
+    .videoInfoContainer {
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 30px;
+    }
+    
+    .videoTitle {
+      font-size: 2.0rem;
+    }
+    
+    .videoStatsContainer {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    
+    .videoMetadata {
+      font-size: 1.1rem;
+      margin-bottom: 0;
+    }
+    
+    .ratingContainer {
+      margin-left: auto;
+      margin-top: 0;
+    }
+    
+    .creatorInfo {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 0;
+      margin: 20px 0;
+    }
+    
+    .creatorAvatar {
+      width: 64px;
+      height: 64px;
+    }
+    
+    .creatorName {
+      font-size: 0.95rem;
+      margin: 0 0 4px 0;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .subscriberContainer {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: -2px; 
+    }
+    
+    .subscriberCount {
+      font-size: 0.75rem;
+      color: #666;
+      margin: 0;
+      position: relative;
+    }
+    
+    .subscribeButton {
+      background-color: #ff0000;
+      color: white;
+      border: none;
+      padding: 15px 27px;
+      border-radius: 20px; 
+      cursor: pointer;
+      font-weight: 500; 
+      transition: all 0.3s;
+      font-size: 0.85rem;
+      min-width: 110px; 
+    }
+    
+    .subscribeButton:hover {
+      background-color: #cc0000;
+    }
+    
+    .subscribeButton.subscribed {
+      background-color: #606060;
+    }
+    
+    .subscribeButton.subscribed:hover {
+      background-color: #404040;
+    }
+    
+    .evaluationSection {
+      padding: 30px;
+    }
+    
+    .evaluationTitle {
+      font-size: 1.5rem;
+    }
+    
+    .star {
+      font-size: 32px;
+    }
+    
+    .commentInput {
+      padding: 16px;
+      min-height: 120px;
+      font-size: 1.1rem;
+    }
+    
+    .submitEvaluationButton {
+      padding: 14px 28px;
+      font-size: 1.1rem;
+    }
+    
+    .deleteEvaluationButton {
+      padding: 12px 24px;
+      font-size: 1.1rem;
+    }
+    
+    .playlistVideosSection {
+      padding: 20px;
+      border-radius: 16px;
+    }
+    
+    .playlistVideosTitle {
+      font-size: 1.5rem;
+    }
+    
+    .emptyPlaylistMessage {
+      padding: 20px;
+      font-size: 1.1rem;
+    }
+    
+    .recommendationsTitle {
+      font-size: 1.5rem;
+    }
+    
+    .thumbnailContainer {
+      width: 220px;
+    }
+    
+    .thumbnail {
+      height: 124px;
+    }
+    
+    .recommendedVideoTitle {
+      font-size: 1.2rem;
+    }
+    
+    .recommendedVideoCreator {
+      font-size: 1rem;
+    }
+    
+    .recommendedVideoStats {
+      font-size: 0.9rem;
+    }
+    
+    .loadingSpinner {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .errorMessage {
+      font-size: 1.2rem;
+      max-width: 80%;
+    }
+    
+    .backButton {
+      padding: 14px 28px;
+      font-size: 1.1rem;
+    }.videoPageContainer {
+      flex-direction: row;
+      padding: 30px;
+      gap: 30px;
+      margin-top: 100px;
+    }
+    
+    .sidebar {
+      max-width: 500px;
+      margin-left: 30px;
+    }
+    
+    .videoPlayerContainer {
+      border-radius: 16px;
+    }
+    
+    .videoInfoContainer {
+      border-radius: 16px;
+      padding: 30px;
+      margin-top: 30px;
+    }
+    
+    .videoTitle {
+      font-size: 1.5rem;
+    }
+    
+    .videoStatsContainer {
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-start;
+    }
+    
+    .videoMetadata {
+      font-size: 1.1rem;
+      margin-bottom: 0;
+    }
+    
+    .ratingContainer {
+      margin-left: auto;
+      margin-top: 0;
+    }
+    
+    .creatorInfo {
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      padding: 20px 0;
+      margin: 20px 0;
+    }
+    
+    .creatorAvatar {
+      width: 64px;
+      height: 64px;
+    }
+    
+    .creatorName {
+      font-size: 1.3rem;
+    }
+    
+    .creatorLeft {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    
+    .evaluationSection {
+      padding: 30px;
+    }
+    
+    .evaluationTitle {
+      font-size: 1.5rem;
+    }
+    
+    .star {
+      font-size: 32px;
+    }
+    
+    .commentInput {
+      padding: 16px;
+      min-height: 120px;
+      font-size: 1.1rem;
+    }
+    
+    .submitEvaluationButton {
+      padding: 14px 28px;
+      font-size: 1.1rem;
+    }
+    
+    .deleteEvaluationButton {
+      padding: 12px 24px;
+      font-size: 1.1rem;
+    }
+    
+    .playlistVideosSection {
+      padding: 20px;
+      border-radius: 16px;
+    }
+    
+    .playlistVideosTitle {
+      font-size: 1.5rem;
+    }
+    
+    .emptyPlaylistMessage {
+      padding: 20px;
+      font-size: 1.1rem;
+    }
+    
+    .recommendationsTitle {
+      font-size: 1.5rem;
+    }
+    
+    .thumbnailContainer {
+      width: 220px;
+    }
+    
+    .thumbnail {
+      height: 124px;
+    }
+    
+    .recommendedVideoTitle {
+      font-size: 1.2rem;
+    }
+    
+    .recommendedVideoCreator {
+      font-size: 1rem;
+    }
+    
+    .recommendedVideoStats {
+      font-size: 0.9rem;
+    }
+    
+    .loadingSpinner {
+      width: 60px;
+      height: 60px;
+    }
+    
+    .errorMessage {
+      font-size: 1.2rem;
+      max-width: 80%;
+    }
+    
+    .backButton {
+      padding: 14px 28px;
+      font-size: 1.1rem;
+    }
 }
 
 @media (min-width: 1921px) and (max-width: 2560px) {

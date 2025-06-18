@@ -14,6 +14,7 @@ const firebaseConfig = {
   measurementId: "G-099LW1PGZ9"
 };
 
+
     const swContent = `
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.1/firebase-app-compat.min.js");
 importScripts("https://cdnjs.cloudflare.com/ajax/libs/firebase/10.11.1/firebase-messaging-compat.min.js");

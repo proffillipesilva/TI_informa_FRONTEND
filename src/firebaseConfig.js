@@ -7,14 +7,15 @@ import {getMessaging, getToken, onMessage} from "firebase/messaging";
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY, // ou process.env.REACT_APP_FIREBASE_API_KEY
-  authDomain: "fir-3mod25.firebaseapp.com",
-  projectId: "fir-3mod25",
-  storageBucket: "fir-3mod25.firebasestorage.app",
-  messagingSenderId: "769227253844",
-  appId: "1:769227253844:web:a57702ba8f9aca555925c1",
-  measurementId: "G-099LW1PGZ9"
-};
+    apiKey: import.meta.env.VITE_FIREBASE_API_KEY, // ou process.env.REACT_APP_FIREBASE_API_KEY
+    authDomain: "fir-3mod25.firebaseapp.com",
+    projectId: "fir-3mod25",
+    storageBucket: "fir-3mod25.firebasestorage.app",
+    messagingSenderId: "769227253844",
+    appId: "1:769227253844:web:a57702ba8f9aca555925c1",
+    measurementId: "G-099LW1PGZ9"
+  };
+
 const firebaseApp = initializeApp(firebaseConfig);
 const messaging = getMessaging(firebaseApp);
 

@@ -108,6 +108,7 @@ const PlaylistVideo = () => {
       document.documentElement.classList.remove(styles.htmlVideoPage);
     };
   }, []);
+  
 
   const formatDate = useCallback((dateString) => {
     if (!dateString) return 'Data desconhecida';
@@ -137,6 +138,7 @@ const PlaylistVideo = () => {
       return 'Data inválida';
     }
   }, []);
+  
 
   const handleAddToPlaylist = async () => {
     if (!selectedPlaylist || !currentVideoId) {
@@ -359,7 +361,6 @@ const PlaylistVideo = () => {
 
     fetchVideoData();
   }, [currentVideoId, location.state, navigate, getVideoSource, currentUserId]);
-
   const handleSubscribe = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -367,27 +368,87 @@ const PlaylistVideo = () => {
         navigate('/login');
         return;
       }
-
+  
+      const userId = getAuthenticatedUserId();
+      if (!userId) {
+        throw new Error('Usuário não autenticado');
+      }
+  
       if (!videoData?.criador?.id) {
         throw new Error('Criador do vídeo não identificado');
       }
-
-      if (isSubscribed) {
-        await axios.delete(`/subscriptions/unsubscribe/${videoData.criador.id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else {
-        await axios.post(`/subscriptions/subscribe/${videoData.criador.id}`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      }
+  
+      const request = {
+        userId: userId,
+        criadorId: videoData.criador.id,
+        inscrever: !isSubscribed
+      };
+  
+      const response = await axios.post('/criador/inscricao', request, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
       setIsSubscribed(!isSubscribed);
+      setVideoData(prev => ({
+        ...prev,
+        criador: {
+          ...prev.criador,
+          totalInscritos: response.data.totalInscritos
+        }
+      }));
+  
+      setRatingMessage(isSubscribed ? 'Inscrição removida com sucesso!' : 'Inscrito com sucesso!');
     } catch (err) {
       console.error('Erro na inscrição:', err);
       setRatingMessage(err.response?.data?.message || 'Erro ao processar inscrição. Tente novamente.');
+    } finally {
       setTimeout(() => setRatingMessage(''), 3000);
     }
   };
+  
+  useEffect(() => {
+    const fetchTotalInscritos = async () => {
+      if (!videoData?.criador?.id) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const response = await axios.get(`/criador/${videoData.criador.id}/inscritos`, { headers });
+        
+        setVideoData(prev => ({
+          ...prev,
+          criador: {
+            ...prev.criador,
+            totalInscritos: response.data
+          }
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar total de inscritos:', error);
+      }
+    };
+  
+    fetchTotalInscritos();
+  }, [videoData?.criador?.id]);
+  
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!videoData?.criador?.id || !currentUserId) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`/subscriptions/check/${videoData.criador.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsSubscribed(response.data?.isSubscribed || false);
+      } catch (error) {
+        console.error('Erro ao verificar inscrição:', error);
+        setIsSubscribed(false);
+      }
+    };
+  
+    checkSubscription();
+  }, [videoData?.criador?.id, currentUserId]);
 
   const handleStarClick = (rating) => {
     if (!hasRated) {
@@ -659,73 +720,76 @@ const PlaylistVideo = () => {
               </div>
             </div>
 
-              <div className={styles.creatorInfo}>
-                <div className={styles.creatorLeft}>
-                  <img
-                    src={creatorProfilePhoto}
-                    alt={videoData.criador?.nome || 'Criador'}
-                    className={styles.creatorAvatar}
-                    onError={(e) => {
-                      e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
-                    }}
-                  />
-                  <div>
-                    <h3 className={styles.creatorName}>
-                      {videoData.criador?.nome || 'Criador desconhecido'}
-                    </h3>
+            <div className={styles.creatorInfo}>
+              <div className={styles.creatorLeft}>
+                <img
+                  src={creatorProfilePhoto}
+                  alt={videoData.criador?.nome || 'Criador'}
+                  className={styles.creatorAvatar}
+                  onError={(e) => {
+                    e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
+                  }}
+                />
+                <div>
+                  <h3 className={styles.creatorName}>
+                    {videoData.criador?.nome || videoData.nomeCriador || 'Criador desconhecido'}
+                  </h3>
+                  <div className={styles.subscriberContainer}>
                     <p className={styles.subscriberCount}>
                       {videoData.criador?.totalInscritos || 0} inscritos
                     </p>
+                    {videoData.criador?.id && (
+                      <button
+                        className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
+                        onClick={handleSubscribe}
+                        disabled={!videoData.criador.id}
+                      >
+                        {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className={styles.actionButtons}>
-                  {videoData.criador?.id && (
-                    <button
-                      className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
-                      onClick={handleSubscribe}
-                      disabled={!videoData.criador.id}
-                    >
-                      {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
-                    </button>
-                  )}
-                  {localStorage.getItem('token') && (
-                    <div className={styles.playlistAction}>
-                      <button
-                        className={styles.addToPlaylistButton}
-                        onClick={() => setShowPlaylistSelect(!showPlaylistSelect)}
-                      >
-                        Adicionar à Playlist
-                      </button>
-                      {showPlaylistSelect && (
-                        <div className={styles.playlistDropdown}>
-                          <select
-                            value={selectedPlaylist}
-                            onChange={(e) => setSelectedPlaylist(e.target.value)}
-                            className={styles.playlistSelect}
-                          >
-                            <option value="">Selecione uma playlist</option>
-                            {playlists.map((pl) => (
-                              <option
-                                key={pl.id_playlist || pl.id}
-                                value={pl.id_playlist || pl.id}
-                              >
-                                {pl.nome}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            onClick={handleAddToPlaylist}
-                            disabled={!selectedPlaylist || loadingPlaylists}
-                            className={styles.confirmAddButton}
-                          >
-                            {loadingPlaylists ? 'Adicionando...' : 'Confirmar'}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
               </div>
+              <div className={styles.actionButtons}>
+                {localStorage.getItem('token') && (
+                  <div className={styles.playlistAction}>
+                    <button
+                      className={styles.addToPlaylistButton}
+                      onClick={() => setShowPlaylistSelect(!showPlaylistSelect)}
+                    >
+                      Adicionar à Playlist
+                    </button>
+                    {showPlaylistSelect && (
+                      <div className={styles.playlistDropdown}>
+                        <select
+                          value={selectedPlaylist}
+                          onChange={(e) => setSelectedPlaylist(e.target.value)}
+                          className={styles.playlistSelect}
+                        >
+                          <option value="">Selecione uma playlist</option>
+                          {playlists.map((pl) => (
+                            <option
+                              key={pl.id_playlist || pl.id}
+                              value={pl.id_playlist || pl.id}
+                            >
+                              {pl.nome}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={handleAddToPlaylist}
+                          disabled={!selectedPlaylist || loadingPlaylists}
+                          className={styles.confirmAddButton}
+                        >
+                          {loadingPlaylists ? 'Adicionando...' : 'Confirmar'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
 
               <div className={styles.evaluationSection}>
                 <h3 className={styles.evaluationTitle}>
@@ -802,16 +866,24 @@ const PlaylistVideo = () => {
 
         <div className={styles.sidebar}>
           {playlistVideos.length > 0 ? (
-            <div className={styles.playlistVideosSection}>
-              <h3 className={styles.playlistVideosTitle}>
-                Vídeos da Playlist: {playlistName}
-              </h3>
-              <div className={styles.playlistVideosList}>
+              <div className={styles.playlistVideosSection}>
+                <h3 className={styles.playlistVideosTitle}>
+                  Vídeos da Playlist: {playlistName}
+                </h3>
+                <div className={styles.playlistVideosList}>
                 {playlistVideos
-                  .filter((video) => video.videoId !== (currentVideoId || videoId))
+                  .filter(video => {
+                    const currentVideoIdStr = String(currentVideoId || videoId);
+                    const videoIdStr = String(video.id || video.videoId || video.id_video);
+                    return videoIdStr !== currentVideoIdStr;
+                  })
                   .length > 0 ? (
                   playlistVideos
-                    .filter((video) => video.videoId !== (currentVideoId || videoId))
+                    .filter(video => {
+                      const currentVideoIdStr = String(currentVideoId || videoId);
+                      const videoIdStr = String(video.id || video.videoId || video.id_video);
+                      return videoIdStr !== currentVideoIdStr;
+                    })
                     .map((video) => (
                       <div
                         key={video.id}
@@ -839,7 +911,7 @@ const PlaylistVideo = () => {
                             {video.titulo || 'Vídeo sem título'}
                           </h4>
                           <p className={styles.recommendedVideoCreator}>
-                            {video.criador?.nome || 'Criador desconhecido'}
+                            {video.criador?.nome || video.nomeCriador || 'Criador desconhecido'}
                           </p>
                           <p className={styles.recommendedVideoStats}>
                             {video.visualizacoes || 0} visualizações • {formatDate(video.dataPublicacao)}

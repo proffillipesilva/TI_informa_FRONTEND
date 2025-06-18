@@ -175,6 +175,19 @@ h1 {
     transform: translate(-50%, -50%);
 }
 
+.thumbnailPreview {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+.thumbnailImage {
+  max-width: 100%;
+  max-height: 200px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: block;
+}
 .erroMensagem {
     color: red;
     font-weight: bold; 
