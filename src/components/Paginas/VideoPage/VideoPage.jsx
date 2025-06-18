@@ -305,27 +305,87 @@ const VideoPage = () => {
         navigate('/login');
         return;
       }
-
+  
+      const userId = getAuthenticatedUserId();
+      if (!userId) {
+        throw new Error('Usuário não autenticado');
+      }
+  
       if (!videoData?.criador?.id) {
         throw new Error('Criador do vídeo não identificado');
       }
-
-      if (isSubscribed) {
-        await axios.delete(`/subscriptions/unsubscribe/${videoData.criador.id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      } else {
-        await axios.post(`/subscriptions/subscribe/${videoData.criador.id}`, {}, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-      }
+  
+      const request = {
+        userId: userId,
+        criadorId: videoData.criador.id,
+        inscrever: !isSubscribed
+      };
+  
+      const response = await axios.post('/criador/inscricao', request, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+  
       setIsSubscribed(!isSubscribed);
+      setVideoData(prev => ({
+        ...prev,
+        criador: {
+          ...prev.criador,
+          totalInscritos: response.data.totalInscritos
+        }
+      }));
+  
+      setRatingMessage(isSubscribed ? 'Inscrição removida com sucesso!' : 'Inscrito com sucesso!');
     } catch (err) {
       console.error('Erro na inscrição:', err);
       setRatingMessage(err.response?.data?.message || 'Erro ao processar inscrição. Tente novamente.');
+    } finally {
       setTimeout(() => setRatingMessage(''), 3000);
     }
   };
+  
+  useEffect(() => {
+    const fetchTotalInscritos = async () => {
+      if (!videoData?.criador?.id) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const response = await axios.get(`/criador/${videoData.criador.id}/inscritos`, { headers });
+        
+        setVideoData(prev => ({
+          ...prev,
+          criador: {
+            ...prev.criador,
+            totalInscritos: response.data
+          }
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar total de inscritos:', error);
+      }
+    };
+  
+    fetchTotalInscritos();
+  }, [videoData?.criador?.id]);
+  
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!videoData?.criador?.id || !currentUserId) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`/subscriptions/check/${videoData.criador.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsSubscribed(response.data?.isSubscribed || false);
+      } catch (error) {
+        console.error('Erro ao verificar inscrição:', error);
+        setIsSubscribed(false);
+      }
+    };
+  
+    checkSubscription();
+  }, [videoData?.criador?.id, currentUserId]);
 
   const handleStarClick = (rating) => {
     if (!hasRated) {
@@ -333,120 +393,133 @@ const VideoPage = () => {
     }
   };
 
-const fetchMediaAvaliacoes = async (videoId) => {
-  try {
-    const token = localStorage.getItem('token');
-    const headers = token ? { Authorization: `Bearer ${token}` } : {};
-    const response = await axios.get(`/avaliacoes/video/${videoId}/media`, { headers });
-    return response.data;
-  } catch (error) {
-    console.error('Erro ao buscar média de avaliações:', error);
-    return 0.0;
-  }
-};
 
-const handleSubmitEvaluation = async () => {
-  try {
+  const handleSubmitEvaluation = async () => {
     const token = localStorage.getItem('token');
-    const userId = localStorage.getItem('userId');
+    const userId = localStorage.getItem('userId'); 
     
-    if (!userId || userId === "undefined" || isNaN(userId)) {
-      setRatingMessage('ID de usuário inválido. Faça login novamente.');
-      localStorage.removeItem('userId');
-      navigate('/login');
-      return;
-    }
-
-    if (hasRated) {
-      setRatingMessage('Você já avaliou este vídeo.');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    if (userRating === 0) {
-      setRatingMessage('Por favor, selecione uma nota (estrelas).');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    if (!comment.trim()) {
-      setRatingMessage('Por favor, adicione um comentário.');
-      setTimeout(() => setRatingMessage(''), 3000);
-      return;
-    }
-
-    setRatingMessage('Enviando sua avaliação...');
-
-    const response = await axios.post('/avaliacoes/create', {
-      userId: Number(userId),
-      videoId: Number(videoId),
-      nota: userRating,
-      comentario: comment
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
+    try {    
+      if (!userId || userId === "undefined" || isNaN(userId)) {
+        setRatingMessage('ID de usuário inválido. Faça login novamente.');
+        localStorage.removeItem('userId');
+        navigate('/login');
+        return;
       }
-    });
-
-    if (response.data) {
-      const refreshedEval = await axios.get(
-        `/avaliacoes/usuario/${userId}/video/${videoId}`,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      
-      if (refreshedEval.data) {
+  
+      if (hasRated) {
+        setRatingMessage('Você já avaliou este vídeo.');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
+      if (userRating === 0) {
+        setRatingMessage('Por favor, selecione uma nota (estrelas).');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
+      if (!comment.trim()) {
+        setRatingMessage('Por favor, adicione um comentário.');
+        setTimeout(() => setRatingMessage(''), 3000);
+        return;
+      }
+  
+      setRatingMessage('Enviando sua avaliação...');
+  
+      await Promise.all([
+        axios.post('/avaliacoes/create', {
+          userId: Number(userId),
+          videoId: Number(videoId),
+          nota: userRating,
+          comentario: comment
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        axios.get(`/file/${videoId}/avaliacao-media`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+  
+      const [evalResponse, mediaResponse] = await Promise.all([
+        axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`/file/${videoId}/avaliacao-media`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+  
+      if (evalResponse.data) {
         setExistingEvaluation({
-          ...refreshedEval.data,
-          dataAvaliacao: refreshedEval.data.dataAvaliacao || new Date().toISOString()
+          ...evalResponse.data,
+          dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
         });
         setHasRated(true);
-        setUserRating(refreshedEval.data.nota);
-        setComment(refreshedEval.data.comentario);
+        setUserRating(evalResponse.data.nota);
+        setComment(evalResponse.data.comentario);
       }
-      
-      const mediaAtualizada = await fetchMediaAvaliacoes(videoId);
-      
+  
       setVideoData(prev => ({
         ...prev,
-        avaliacaoMedia: mediaAtualizada
+        avaliacaoMedia: mediaResponse.data
       }));
-
+  
       setRatingMessage('Obrigado pela sua avaliação!');
-    }
-  } catch (err) {
-    console.error('Erro ao avaliar o vídeo:', err);
-    if (err.response?.status === 401) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('userId');
-      setRatingMessage('Sessão expirada. Faça login novamente.');
-      navigate('/login', { state: { from: location.pathname } });
-    } else if (err.response?.status === 409) {
-      setRatingMessage('Você já avaliou este vídeo anteriormente.');
-      setHasRated(true);
-      try {
-        const evalResponse = await axios.get(
-          `/avaliacoes/usuario/${currentUserId}/video/${videoId}`,
-          { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-        );
-        if (evalResponse.data) {
-          setExistingEvaluation({
-            ...evalResponse.data,
-            dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
-          });
-          setUserRating(evalResponse.data.nota);
-          setComment(evalResponse.data.comentario);
+  
+    } catch (err) {
+      console.error('Erro ao avaliar o vídeo:', err);
+      
+      if (err.response?.status === 401) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userId');
+        setRatingMessage('Sessão expirada. Faça login novamente.');
+        navigate('/login', { state: { from: location.pathname } });
+        
+      } else if (err.response?.status === 409) {
+        setRatingMessage('Você já avaliou este vídeo anteriormente.');
+        setHasRated(true);
+        
+        try {
+          if (!token) throw new Error('Token não encontrado');
+  
+          const [evalResponse, mediaResponse] = await Promise.all([
+            axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }),
+            axios.get(`/file/${videoId}/avaliacao-media`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          ]);
+  
+          if (evalResponse.data) {
+            setExistingEvaluation({
+              ...evalResponse.data,
+              dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
+            });
+            setUserRating(evalResponse.data.nota);
+            setComment(evalResponse.data.comentario);
+          }
+  
+          setVideoData(prev => ({
+            ...prev,
+            avaliacaoMedia: mediaResponse.data
+          }));
+  
+        } catch (fetchErr) {
+          console.error('Erro ao buscar avaliação existente:', fetchErr);
+          setRatingMessage('Erro ao carregar avaliação existente.');
         }
-      } catch (fetchErr) {
-        console.error('Erro ao buscar avaliação existente:', fetchErr);
+        
+      } else {
+        setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
       }
-    } else {
-      setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
+    } finally {
+      setTimeout(() => setRatingMessage(''), 3000);
     }
-  } finally {
-    setTimeout(() => setRatingMessage(''), 3000);
-  }
-};
+  };
 
 const handleDeleteEvaluation = async () => {
   if (!existingEvaluation) return;
@@ -470,12 +543,16 @@ const handleDeleteEvaluation = async () => {
       }
     });
 
+    const mediaResponse = await axios.get(`/file/${videoId}/avaliacao-media`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    const mediaAtualizada = mediaResponse.data;
+
     setExistingEvaluation(null);
     setHasRated(false);
     setUserRating(0);
     setComment('');
-    
-    const mediaAtualizada = await fetchMediaAvaliacoes(videoId);
     
     setVideoData(prev => ({
       ...prev,
@@ -597,73 +674,75 @@ const handleDeleteEvaluation = async () => {
               </div>
             </div>
 
-              <div className={styles.creatorInfo}>
-                <div className={styles.creatorLeft}>
-                  <img
-                    src={creatorProfilePhoto}
-                    alt={videoData.criador?.nome || 'Criador'}
-                    className={styles.creatorAvatar}
-                    onError={(e) => {
-                      e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
-                    }}
-                  />
-                  <div>
-                    <h3 className={styles.creatorName}>
-                      {videoData.criador?.nome || 'Criador desconhecido'}
-                    </h3>
+            <div className={styles.creatorInfo}>
+              <div className={styles.creatorLeft}>
+                <img
+                  src={creatorProfilePhoto}
+                  alt={videoData.criador?.nome || 'Criador'}
+                  className={styles.creatorAvatar}
+                  onError={(e) => {
+                    e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
+                  }}
+                />
+                <div>
+                  <h3 className={styles.creatorName}>
+                    {videoData.criador?.nome || videoData.nomeCriador || 'Criador desconhecido'}
+                  </h3>
+                  <div className={styles.subscriberContainer}>
                     <p className={styles.subscriberCount}>
                       {videoData.criador?.totalInscritos || 0} inscritos
                     </p>
+                    {videoData.criador?.id && (
+                      <button
+                        className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
+                        onClick={handleSubscribe}
+                        disabled={!videoData.criador.id}
+                      >
+                        {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className={styles.actionButtons}>
-                  {videoData.criador?.id && (
-                    <button
-                      className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
-                      onClick={handleSubscribe}
-                      disabled={!videoData.criador.id}
-                    >
-                      {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
-                    </button>
-                  )}
-                  {localStorage.getItem('token') && (
-                    <div className={styles.playlistAction}>
-                      <button
-                        className={styles.addToPlaylistButton}
-                        onClick={() => setShowPlaylistSelect(!showPlaylistSelect)}
-                      >
-                        Adicionar à Playlist
-                      </button>
-                      {showPlaylistSelect && (
-                        <div className={styles.playlistDropdown}>
-                          <select
-                            value={selectedPlaylist}
-                            onChange={(e) => setSelectedPlaylist(e.target.value)}
-                            className={styles.playlistSelect}
-                          >
-                            <option value="">Selecione uma playlist</option>
-                            {playlists.map((pl) => (
-                              <option
-                                key={pl.id_playlist || pl.id}
-                                value={pl.id_playlist || pl.id}
-                              >
-                                {pl.nome}
-                              </option>
-                            ))}
-                          </select>
-                          <button
-                            onClick={handleAddToPlaylist}
-                            disabled={!selectedPlaylist || loadingPlaylists}
-                            className={styles.confirmAddButton}
-                          >
-                            {loadingPlaylists ? 'Adicionando...' : 'Confirmar'}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
               </div>
+              <div className={styles.actionButtons}>
+                {localStorage.getItem('token') && (
+                  <div className={styles.playlistAction}>
+                    <button
+                      className={styles.addToPlaylistButton}
+                      onClick={() => setShowPlaylistSelect(!showPlaylistSelect)}
+                    >
+                      Adicionar à Playlist
+                    </button>
+                    {showPlaylistSelect && (
+                      <div className={styles.playlistDropdown}>
+                        <select
+                          value={selectedPlaylist}
+                          onChange={(e) => setSelectedPlaylist(e.target.value)}
+                          className={styles.playlistSelect}
+                        >
+                          <option value="">Selecione uma playlist</option>
+                          {playlists.map((pl) => (
+                            <option
+                              key={pl.id_playlist || pl.id}
+                              value={pl.id_playlist || pl.id}
+                            >
+                              {pl.nome}
+                            </option>
+                          ))}
+                        </select>
+                        <button
+                          onClick={handleAddToPlaylist}
+                          disabled={!selectedPlaylist || loadingPlaylists}
+                          className={styles.confirmAddButton}
+                        >
+                          {loadingPlaylists ? 'Adicionando...' : 'Confirmar'}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
 
               <div className={styles.evaluationSection}>
                 <h3 className={styles.evaluationTitle}>
@@ -770,7 +849,7 @@ const handleDeleteEvaluation = async () => {
                     {video.titulo || 'Vídeo sem título'}
                   </h4>
                   <p className={styles.recommendedVideoCreator}>
-                    {video.criador?.nome || 'Criador desconhecido'}
+                    {video.criador?.nome || video.nomeCriador || 'Criador desconhecido'}
                   </p>
                   <p className={styles.recommendedVideoStats}>
                     {video.visualizacoes || 0} visualizações • {formatDate(video.dataPublicacao)}

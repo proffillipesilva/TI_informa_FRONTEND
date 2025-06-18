@@ -2057,18 +2057,49 @@
 }
 
 .creatorName {
-  font-size: 1.3rem;
+  font-size: 0.95rem;
+  margin: 0 0 4px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+.subscriberContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: -2px; 
 }
 
 .subscriberCount {
-  font-size: 1rem;
+  font-size: 0.75rem;
+  color: #666;
+  margin: 0;
+  position: relative;
 }
 
 .subscribeButton {
-  padding: 12px 24px;
-  min-width: 150px;
-  margin-top: 0;
-  font-size: 1.1rem;
+  background-color: #ff0000;
+  color: white;
+  border: none;
+  padding: 15px 27px;
+  border-radius: 20px; 
+  cursor: pointer;
+  font-weight: 500; 
+  transition: all 0.3s;
+  font-size: 0.85rem;
+  min-width: 110px; 
+}
+
+.subscribeButton:hover {
+  background-color: #cc0000;
+}
+
+.subscribeButton.subscribed {
+  background-color: #606060;
+}
+
+.subscribeButton.subscribed:hover {
+  background-color: #404040;
 }
 
 .evaluationSection {
@@ -2210,16 +2241,12 @@
   font-size: 1.3rem;
 }
 
-.subscriberCount {
-  font-size: 1rem;
+.creatorLeft {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
-.subscribeButton {
-  padding: 12px 24px;
-  min-width: 150px;
-  margin-top: 0;
-  font-size: 1.1rem;
-}
 
 .evaluationSection {
   padding: 30px;
@@ -2371,6 +2398,7 @@
   }
   
   .subscribeButton {
+    background-color: #ff0000;
     padding: 12px 24px;
     min-width: 150px;
     margin-top: 0;
@@ -2521,6 +2549,7 @@
   }
   
   .subscribeButton {
+    background-color: #ff0000;
     padding: 12px 24px;
     min-width: 150px;
     margin-top: 0;

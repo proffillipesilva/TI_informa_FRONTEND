@@ -69,6 +69,13 @@ const UploadVideo = () => {
             return;
         }
 
+
+        if (videoFile.size > 100 * 1024 * 1024) {
+            setErro('O vídeo excede o limite de 100MB');
+            alert('O vídeo excede o limite de 100MB')
+            return;
+        }
+
         if (!thumbnailFile) {
             setErro('Selecione uma thumbnail para o vídeo');
             return;
@@ -79,11 +86,16 @@ const UploadVideo = () => {
             return;
         }
 
+        if (descricao.length > 255) {
+            setErro('A descrição deve ter no máximo 255 caracteres');
+            alert('A descrição deve ter no máximo 255 caracteres')
+            return;
+        }
+
         if (selectedPalavrasChave.length === 0) {
             setErro('Selecione pelo menos uma palavra-chave');
             return;
         }
-
         setIsEnviando(true);
         setErro('');
 
@@ -206,7 +218,7 @@ const UploadVideo = () => {
                     </div>
 
                     <div className={styles.formGroup}>
-                        <label>Palavras-chave:*</label> 
+                        <label>Palavras-chave:*</label>
                         <div className={styles.checkboxGroupContainer}>
                             {Object.entries(categoriasPalavrasChave).map(([categoriaNome, palavras]) => (
                                 <div key={categoriaNome} className={styles.categoriaCheckboxGroup}>
