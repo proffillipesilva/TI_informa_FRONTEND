@@ -68,34 +68,42 @@ const UploadVideo = () => {
             setErro('Selecione um arquivo de vídeo');
             return;
         }
-
-
-        if (videoFile.size > 100 * 1024 * 1024) {
-            setErro('O vídeo excede o limite de 100MB');
-            alert('O vídeo excede o limite de 100MB')
+    
+        if (videoFile.size === 0) {
+            setErro('O arquivo de vídeo está vazio');
             return;
         }
-
+    
+        if (videoFile.size > 100 * 1024 * 1024) { 
+            setErro('O vídeo excede o limite de 100MB');
+            return;
+        }
+    
         if (!thumbnailFile) {
             setErro('Selecione uma thumbnail para o vídeo');
             return;
         }
-
+    
+        if (thumbnailFile.size === 0) {
+            setErro('O arquivo de thumbnail está vazio');
+            return;
+        }
+    
         if (!titulo || !descricao) {
             setErro('Título e descrição são obrigatórios');
             return;
         }
-
+    
         if (descricao.length > 255) {
             setErro('A descrição deve ter no máximo 255 caracteres');
-            alert('A descrição deve ter no máximo 255 caracteres')
             return;
         }
-
+    
         if (selectedPalavrasChave.length === 0) {
             setErro('Selecione pelo menos uma palavra-chave');
             return;
         }
+        
         setIsEnviando(true);
         setErro('');
 
@@ -130,9 +138,10 @@ const UploadVideo = () => {
             }
         } catch (error) {
             console.error('Erro no upload:', error);
-            setErro(error.response?.data?.message ||
-                error.message ||
-                'Erro ao enviar vídeo. Por favor, tente novamente.');
+            const errorMessage = error.response?.data?.message || 
+                                error.message || 
+                                (error.response?.data ? error.response.data : 'Erro ao enviar vídeo. Por favor, tente novamente.');
+            setErro(typeof errorMessage === 'object' ? JSON.stringify(errorMessage) : errorMessage);
         } finally {
             setIsEnviando(false);
         }

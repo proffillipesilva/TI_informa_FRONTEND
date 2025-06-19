@@ -14,7 +14,7 @@ const Home = () => {
   const [loadingPopular, setLoadingPopular] = useState(true);
   const [errorRecommended, setErrorRecommended] = useState(null);
   const [errorPopular, setErrorPopular] = useState(null);
-  const [filter, setFilter] = useState('default'); // 'default', 'top-rated', 'recent'
+  const [filter, setFilter] = useState('default'); 
 
   const [recommendedStartIndex, setRecommendedStartIndex] = useState(0);
   const [popularStartIndex, setPopularStartIndex] = useState(0);
@@ -41,11 +41,9 @@ const Home = () => {
         popularEndpoint = '/file/videos-recentes/populares';
       }
 
-      // Fetch recommended videos
       const recommendedResponse = await api.get(recommendedEndpoint);
       setRecommendedVideos(recommendedResponse.data);
 
-      // Fetch popular videos
       const popularResponse = await api.get(popularEndpoint);
       let sortedPopularVideos = popularResponse.data;
       
@@ -78,7 +76,7 @@ const Home = () => {
   }, [navigate, filter]);
 
   const getThumbnailSource = (video) => {
-    const s3BaseUrl = 'https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/';
+    const s3BaseUrl = 'https://tiinformafiec.s3.us-east-1.amazonaws.com/';
     if (video?.thumbnail) {
       return `${s3BaseUrl}${video.thumbnail}`;
     }

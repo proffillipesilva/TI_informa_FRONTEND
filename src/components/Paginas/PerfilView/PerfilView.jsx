@@ -6,7 +6,7 @@ import Layout from '../../Layout/Layout';
 import axios from '../../../api/axios-config';
 
 const getThumbnailSource = (video) => {
-  const s3BaseUrl = 'https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/';
+  const s3BaseUrl = 'https://tiinformafiec.s3.us-east-1.amazonaws.com/';
   if (video?.thumbnail) {
     return `${s3BaseUrl}${video.thumbnail}`;
   }

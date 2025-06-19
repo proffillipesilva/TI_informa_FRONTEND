@@ -39,7 +39,7 @@ const PlaylistView = () => {
   }, [playlistId]);
 
   const getThumbnailSource = (video) => {
-    const s3BaseUrl = 'https://tcc-fiec-ti-informa.s3.us-east-2.amazonaws.com/';
+    const s3BaseUrl = 'https://tiinformafiec.s3.us-east-1.amazonaws.com/';
     if (video?.videoThumbnail) {
       return `${s3BaseUrl}${video.videoThumbnail}`;
     }
