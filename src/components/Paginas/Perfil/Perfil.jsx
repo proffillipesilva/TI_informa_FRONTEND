@@ -144,18 +144,21 @@ const Perfil = () => {
   const [newVisibility, setNewVisibility] = useState('');
   const navigate = useNavigate();
   const TamanhoNomePlaylist = 30;
-
   const [originalDescricaoUsuario, setOriginalDescricaoUsuario] = useState('');
-
   const [showConfirmVideoModal, setShowConfirmVideoModal] = useState(false);
   const [videoToDelete, setVideoToDelete] = useState(null);
   const [showVideoSuccessModal, setShowVideoSuccessModal] = useState(false);
   const [videoSuccessMessage, setVideoSuccessMessage] = useState('');
-
   const [showConfirmPlaylistModal, setShowConfirmPlaylistModal] = useState(false);
   const [playlistToDelete, setPlaylistToDelete] = useState(null);
   const [showPlaylistSuccessModal, setShowPlaylistSuccessModal] = useState(false);
   const [playlistSuccessMessage, setPlaylistSuccessMessage] = useState('');
+  const [fotoUrl, setFotoUrl] = useState('');
+  const [originalFotoUrl, setOriginalFotoUrl] = useState('');
+  const [fotoFile, setFotoFile] = useState(null);
+  const [fotoPreviewUrl, setFotoPreviewUrl] = useState('');
+
+
 
 
   useEffect(() => {
@@ -175,9 +178,11 @@ const Perfil = () => {
         setIsCriador(response.data.isCriador || false);
         setIsAdmin(response.data.isAdmin || false);
         setInteressesUsuario(response.data.interesses);
-        console.log("Resposta do /auth/me:", response.data);
         setDescricaoUsuario(response.data.descricao || '');
         setOriginalDescricaoUsuario(response.data.descricao || '');
+        setFotoUrl(response.data.fotoUrl || '');
+        setOriginalFotoUrl(response.data.fotoUrl || '');
+
 
 
         if (response.data.isCriador) {
@@ -222,25 +227,56 @@ const Perfil = () => {
   }, [navigate]);
 
   const aoClicarEditar = async () => {
-    const token = localStorage.getItem('token');
-
     if (isEditing) {
       try {
-        await axios.put(
-          '/usuario/descricao',
-          { descricao: descricaoUsuario },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        alert('Descrição atualizada com sucesso!');
+        const token = localStorage.getItem('token');
+        const headers = { Authorization: `Bearer ${token}` };
+
+        // Atualiza descrição
+        await axios.put('/usuario/descricao', { descricao: descricaoUsuario }, { headers });
+
+        // Se foi selecionada uma nova imagem:
+        if (fotoFile) {
+          const formData = new FormData();
+          formData.append('file', fotoFile);
+
+          const response = await axios.post('/usuario/foto-upload', formData, {
+            headers: {
+              ...headers,
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+
+          // Salva a URL retornada no estado
+          const urlFoto = response.data.url;
+          setFotoUrl(urlFoto);
+          setOriginalFotoUrl(urlFoto);
+        }
+
+        alert('Perfil atualizado com sucesso!');
         setOriginalDescricaoUsuario(descricaoUsuario);
         setIsEditing(false);
       } catch (error) {
-        console.error('Erro ao atualizar descrição:', error);
-        alert('Erro ao atualizar descrição: ' + (error.response?.data?.message || 'Tente novamente mais tarde'));
+        console.error('Erro ao atualizar perfil:', error);
+        alert('Erro ao atualizar perfil: ' + (error.response?.data || 'Tente novamente.'));
       }
-    } else {
+    }
+    else {
       setIsEditing(true);
     }
+
+  };
+
+  const aoSelecionarFoto = (e) => {
+    const file = e.target.files[0];
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    if (!validTypes.includes(file.type)) {
+      alert('Selecione uma imagem JPEG ou PNG');
+      return;
+    }
+
+    setFotoFile(file);
+    setFotoPreviewUrl(URL.createObjectURL(file));
   };
 
 
@@ -710,11 +746,22 @@ const Perfil = () => {
       <Layout />
       <div className={styles.container}>
         <div className={styles.cartaoPerfil}>
-          <img
-            src="https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg"
-            alt="Foto de Perfil"
-            className={styles.imagemPerfil}
-          />
+          {isEditing ? (
+            <>
+              <input type="file" accept="image/*" onChange={aoSelecionarFoto} />
+              {fotoPreviewUrl && (
+                <img src={fotoPreviewUrl} alt="Pré-visualização" className={styles.imagemPerfil} />
+              )}
+            </>
+          ) : (
+            <img
+              src={fotoUrl || 'https://url-de-imagem-default.com/foto.jpg'}
+              alt="Foto de Perfil"
+              className={styles.imagemPerfil}
+            />
+          )}
+
+
           <div className={styles.infoPerfil}>
             <h2 className={styles.nomeUsuario}>{nomeCompleto}</h2>
             <p className={styles.emailUsuario}>{emailUsuario}</p>
