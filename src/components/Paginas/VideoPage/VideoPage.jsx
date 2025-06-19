@@ -675,15 +675,17 @@ const handleDeleteEvaluation = async () => {
             </div>
 
             <div className={styles.creatorInfo}>
-              <div className={styles.creatorLeft}>
-                <img
-                  src={creatorProfilePhoto}
-                  alt={videoData.criador?.nome || 'Criador'}
-                  className={styles.creatorAvatar}
-                  onError={(e) => {
-                    e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
-                  }}
-                />
+            <div className={styles.creatorLeft}>
+              <img
+                src={creatorProfilePhoto}
+                alt={videoData.criador?.nome || 'Criador'}
+                className={styles.creatorAvatar}
+                onClick={() => navigate(`/perfil/${videoData.criador?.id}`)}
+                style={{ cursor: 'pointer' }}
+                onError={(e) => {
+                  e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
+                }}
+              />
                 <div>
                   <h3 className={styles.creatorName}>
                     {videoData.criador?.nome || videoData.nomeCriador || 'Criador desconhecido'}

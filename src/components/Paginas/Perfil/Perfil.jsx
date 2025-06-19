@@ -294,7 +294,6 @@ const Perfil = () => {
   const aoClicarAdicionarVideo = () => {
     navigate('/upload-video');
   };
-
   const criarPlaylist = async () => {
     const token = localStorage.getItem('token');
     if (!novaPlaylistNome.trim()) {
@@ -305,14 +304,26 @@ const Perfil = () => {
       alert(`O nome da playlist não pode exceder ${TamanhoNomePlaylist} caracteres.`);
       return;
     }
-
+  
     try {
       setLoadingPlaylists(true);
+      
+      const userInfoResponse = await axios.get('/auth/me', { 
+        headers: { Authorization: `Bearer ${token}` } 
+      });
+      
+      const playlistData = {
+        nome: novaPlaylistNome, 
+        visibilidade: 'PRIVADA',
+        criadorId: userInfoResponse.data.isCriador ? userInfoResponse.data.id_criador : null
+      };
+  
       const res = await axios.post(
         '/playlists/criar',
-        { nome: novaPlaylistNome, visibilidade: 'PRIVADA' },
+        playlistData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      
       setPlaylists([res.data, ...playlists]);
       setNovaPlaylistNome('');
       alert('Playlist criada com sucesso!');
@@ -679,15 +690,11 @@ const Perfil = () => {
         </div>
         <div className={styles.listaVideos}>
           {Array.isArray(videosOrdenados) && [...videosOrdenados].reverse().map((video, index) => (
-            <div
-              key={index}
-              className={styles.itemVideo}
-            >
+            <div key={index} className={styles.itemVideo}>
               <h3 className={styles.nomeArquivo}>{video.titulo}</h3>
               <div
                 className={styles.videoContainer}
                 onClick={() => navigate(`/video/${video.id_video || video.id}`, { state: { video } })}
-                style={{ cursor: 'pointer' }}
               >
                 <img
                   src={getThumbnailSource(video)}
@@ -754,7 +761,7 @@ const Perfil = () => {
             </>
           ) : (
             <img
-              src={fotoUrl || 'https://url-de-imagem-default.com/foto.jpg'}
+              src={fotoUrl || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg'}
               alt="Foto de Perfil"
               className={styles.imagemPerfil}
             />
@@ -807,23 +814,26 @@ const Perfil = () => {
             )}
           </div>
         </div>
-        <div className={styles.linksNavegacao}>
-          {secoesFiltradas.map(secao => (
-            <div
-              key={secao.id}
-              className={`${styles.secao} ${secoesAtivas.includes(secao.id) ? styles.aberta : ''}`}
-            >
-              <p onClick={() => alternarSecao(secao.id)}>
-                {secao.titulo} <HiChevronDown />
-              </p>
-              <div
-                className={`${styles.conteudoSecao} ${secoesAtivas.includes(secao.id) ? styles.aberta : ''}`}
-              >
-                {secao.conteudo}
-              </div>
-            </div>
-          ))}
-        </div>
+        <div className={styles.contentSections}>
+  {secoesFiltradas.map(secao => (
+    <div key={secao.id} className={styles.section}>
+      <div 
+        className={styles.sectionHeader}
+        onClick={() => alternarSecao(secao.id)}
+      >
+        <h2>{secao.titulo}</h2>
+        <HiChevronDown className={`${styles.sectionIcon} ${
+          secoesAtivas.includes(secao.id) ? styles.rotated : ''
+        }`}/>
+      </div>
+      <div className={`${styles.sectionContent} ${
+        secoesAtivas.includes(secao.id) ? styles.active : ''
+      }`}>
+        {secao.conteudo}
+      </div>
+    </div>
+  ))}
+</div>
         <button className={styles.botaoSair} onClick={aoClicarSair}>
           Sair da conta
         </button>

@@ -40,7 +40,7 @@ function App() {
                     <Route path="/interesses" element={<Interesses />} />
                     <Route path="/home" element={<Home />} />
                     <Route path="/perfil" element={<Perfil />} />
-                    <Route path="/perfil/:userId" element={<PerfilView />} />
+                    <Route path="/perfil/:criadorId" element={<PerfilView />} />
                     <Route path="/assinatura" element={<Assinatura />} />
                     <Route path="/EsqueceuSenha" element={<EsqueceuSenha />} />
                     <Route path="/RedefinirSenha" element={<RedefinirSenha />} />
