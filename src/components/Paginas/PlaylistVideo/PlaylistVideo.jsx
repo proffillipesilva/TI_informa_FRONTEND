@@ -138,7 +138,16 @@ const PlaylistVideo = () => {
       return 'Data inválida';
     }
   }, []);
-  
+
+  const formatSubscribers = (count) => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count;
+  };  
 
   const handleAddToPlaylist = async () => {
     if (!selectedPlaylist || !currentVideoId) {
@@ -754,7 +763,7 @@ const handleDeleteEvaluation = async () => {
                 </h3>
                   <div className={styles.subscriberContainer}>
                     <p className={styles.subscriberCount}>
-                      {videoData.criador?.totalInscritos || 0} inscritos
+                    {formatSubscribers(videoData.criador?.totalInscritos || 0)} inscritos
                     </p>
                     {videoData.criador?.id && (
                       <button

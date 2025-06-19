@@ -154,6 +154,7 @@ const Perfil = () => {
   const [playlistSuccessMessage, setPlaylistSuccessMessage] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
   const [originalFotoUrl, setOriginalFotoUrl] = useState('');
+  const [totalInscritos, setTotalInscritos] = useState(0);
   const [fotoFile, setFotoFile] = useState(null);
   const [fotoPreviewUrl, setFotoPreviewUrl] = useState('');
 
@@ -182,7 +183,15 @@ const Perfil = () => {
         setFotoUrl(response.data.fotoUrl || '');
         setOriginalFotoUrl(response.data.fotoUrl || '');
 
-
+        if (response.data.isCriador && response.data.id_criador) {
+          try {
+            const inscritosResponse = await axios.get(`/criador/${response.data.id_criador}/inscritos`, { headers });
+            setTotalInscritos(inscritosResponse.data || 0);
+          } catch (error) {
+            console.error('Erro ao buscar inscritos:', error);
+            setTotalInscritos(0);
+          }
+        }
 
         if (response.data.isCriador) {
           setSecoesAtivas(['videos', 'playlists']);
@@ -224,6 +233,16 @@ const Perfil = () => {
 
     carregarDados();
   }, [navigate]);
+
+  const formatSubscribers = (count) => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count;
+  };
 
   const aoClicarEditar = async () => {
     if (isEditing) {
@@ -780,7 +799,9 @@ const Perfil = () => {
               maxLength={255}
             />
             {isCriador ? (
-              <p className={styles.tipoUsuario}>Criador de Conteúdo</p>
+              <p className={styles.tipoUsuario}>
+              Criador de Conteúdo • {formatSubscribers(totalInscritos)} inscritos
+              </p>
             ) : isAdmin ? (
               <p className={styles.tipoUsuario}>Administrador</p>
             ) : (

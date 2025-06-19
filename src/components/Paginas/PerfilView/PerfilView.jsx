@@ -13,7 +13,8 @@ const PerfilView = () => {
     fotoUrl: 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg',
     formacao: '',
     isCriador: false,
-    usuarioId: null
+    usuarioId: null,
+    totalInscritos: 0
   });
   const [videos, setVideos] = useState([]);
   const [playlists, setPlaylists] = useState([]);
@@ -44,7 +45,8 @@ const PerfilView = () => {
           fotoUrl: perfilData.fotoUrl || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg',
           formacao: perfilData.formacao,
           isCriador: true,
-          usuarioId: perfilData.usuarioId
+          usuarioId: perfilData.usuarioId,
+          totalInscritos: perfilData.totalInscritos || 0 
         });
 
         const requests = [
@@ -79,6 +81,16 @@ const PerfilView = () => {
 
     carregarDados();
   }, [criadorId]);
+
+  const formatSubscribers = (count) => {
+    if (count >= 1000000) {
+      return `${(count / 1000000).toFixed(1)}M`;
+    }
+    if (count >= 1000) {
+      return `${(count / 1000).toFixed(1)}K`;
+    }
+    return count;
+  };
 
   const videosOrdenados = [...videos].sort((a, b) => 
     new Date(b.dataPublicacao) - new Date(a.dataPublicacao)
@@ -208,6 +220,10 @@ const PerfilView = () => {
           />
           <div className={styles.profileInfo}>
             <h1 className={styles.profileName}>{perfil.nome}</h1>
+            <div className={styles.subscriberCount}>
+              {formatSubscribers(perfil.totalInscritos)} inscritos
+            </div>
+            
             <p className={styles.profileDescription}>{perfil.descricao}</p>
             {perfil.formacao && (
               <p className={styles.profileEducation}>
@@ -215,6 +231,7 @@ const PerfilView = () => {
               </p>
             )}
             <div className={styles.profileBadge}>Criador de Conteúdo</div>
+            
           </div>
         </div>
 

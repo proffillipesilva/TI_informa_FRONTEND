@@ -295,45 +295,13 @@
   background-color: #0056b3;
 }
 
-/* Responsive styles */
-@media (max-width: 768px) {
-  .profileHeader {
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 20px;
-  }
 
-  .profileImage {
-    width: 120px;
-    height: 120px;
-    margin-bottom: 15px;
-  }
-
-  .profileName {
-    font-size: 24px;
-  }
-
-  .listaVideos,
-  .listaPlaylists {
-    grid-template-columns: 1fr;
-  }
+.subscriberCount {
+  font-size: 15.3px;
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 4px 10px;
+  border-radius: 12px;
+  transform: translateY(-18px);
 }
 
-@media (max-width: 480px) {
-  .profileContainer {
-    padding: 10px;
-  }
-
-  .profileHeader {
-    padding: 15px;
-  }
-
-  .sectionHeader {
-    padding: 15px;
-  }
-
-  .sectionHeader h2 {
-    font-size: 18px;
-  }
-}
