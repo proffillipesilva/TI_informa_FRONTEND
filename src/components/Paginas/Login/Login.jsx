@@ -126,16 +126,30 @@ const Login = () => {
   
     } catch (err) {
       console.error('Erro no login:', err);
-      setError(err.response?.data?.message || 
-              err.message || 
-              'Erro ao fazer login');
+      
+      if (err.response && err.response.status === 500) {
+        setError('Credenciais inválidas. Verifique seu e-mail e senha.');
+      } 
+      else if (err.response && err.response.status === 403) {
+        setError('Sua conta ainda não foi verificada. Por favor, verifique seu e-mail.');
+      }
+      else if (err.response && err.response.status === 404) {
+        setError('Usuário não encontrado. Verifique seu e-mail ou cadastre-se.');
+      }
+
+      else {
+        setError(err.response?.data?.message || 
+                err.message || 
+                'Erro ao fazer login. Tente novamente.');
+      }
+      
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
     } finally {
       setLoading(false);
     }
   };
-
+  
   const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
@@ -144,13 +158,13 @@ const Login = () => {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
-
+  
       const backendResponse = await axios.post('/auth/google-auth', {
         idToken: idToken
       });
-
+  
       localStorage.setItem('token', backendResponse.data.token);
-
+  
       if (backendResponse.data.cadastroCompleto) {
         setUsuarioLogado(true);
         navegarPara('/home');
@@ -162,14 +176,14 @@ const Login = () => {
           name: user.displayName,
           idToken: idToken
         });
-
+  
         try {
           const userCheck = await axios.get('/auth/me', {
             headers: {
               Authorization: `Bearer ${backendResponse.data.token}`
             }
           });
-
+  
           if (userCheck.data.interesses) {
             setInteressesSelecionados(
               userCheck.data.interesses.split(',')
@@ -177,7 +191,7 @@ const Login = () => {
                 .filter(item => item)
             );
           }
-
+  
           if (userCheck.data.pergunta_resposta) {
             try {
               const perguntas = JSON.parse(userCheck.data.pergunta_resposta);
@@ -199,10 +213,27 @@ const Login = () => {
       
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Login com Google cancelado.');
-      } else if (err.response) {
+      } 
+      else if (err.code === 'auth/account-exists-with-different-credential') {
+        setError('Este e-mail já está cadastrado com outro método de login.');
+      }
+      else if (err.code && err.code.startsWith('auth/')) {
+        setError('Erro na autenticação com Google. Tente novamente.');
+      }
+      else if (err.response) {
         const backendError = err.response.data;
-        setError(typeof backendError === 'string' ? backendError : backendError.message || 'Erro ao fazer login com Google');
-      } else {
+        
+        if (err.response.status === 401) {
+          setError('Autenticação com Google falhou. Tente novamente.');
+        } 
+        else if (err.response.status === 403) {
+          setError('Acesso não autorizado. Sua conta pode estar desativada.');
+        }
+        else {
+          setError(typeof backendError === 'string' ? backendError : backendError.message || 'Erro ao fazer login com Google');
+        }
+      } 
+      else {
         setError(`Erro ao fazer login com Google: ${err.message || 'Tente novamente.'}`);
       }
     } finally {
@@ -236,7 +267,7 @@ const Login = () => {
       setLoading(false);
       return;
     }
-
+  
     const pergunta_resposta = [{
       pergunta: selectedQuestion,
       resposta: answer
@@ -255,14 +286,22 @@ const Login = () => {
       setUsuarioLogado(true);
       navegarPara('/home');
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(typeof err.response.data === 'object' ? 
-          err.response.data.message || 'Erro ao registrar usuário' : 
-          err.response.data);
-      } else if (err.request) {
-        setError('Sem resposta do servidor');
-      } else {
-        setError('Erro ao configurar requisição');
+      if (err.response && err.response.status === 400) {
+        setError('Dados inválidos. Verifique as informações fornecidas.');
+      }
+      else if (err.response && err.response.status === 409) {
+        setError('Este e-mail já está cadastrado.');
+      }
+      else if (err.response && err.response.status >= 500) {
+        setError('Erro no servidor. Por favor, tente novamente mais tarde.');
+      }
+      else if (err.request) {
+        setError('Sem resposta do servidor. Verifique sua conexão.');
+      } 
+      else {
+        setError(typeof err.response?.data === 'object' ? 
+          err.response?.data?.message || 'Erro ao registrar usuário' : 
+          'Erro ao configurar requisição');
       }
     } finally {
       setLoading(false);

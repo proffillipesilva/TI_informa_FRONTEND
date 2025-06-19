@@ -82,72 +82,85 @@ const Inicial = () => {
   };
 
   const estaSelecionado = (interesse) => interessesSelecionados.includes(interesse);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+  
     try {
       const response = await axios.post('/auth/login', {
         email: formData.email,
         senha: formData.password,
       });
-
+  
       const token = response.data.token;
       if (!token) {
         throw new Error('Token não recebido do servidor');
       }
-
+  
       localStorage.setItem('token', token);
-
+  
       const userResponse = await axios.get('/auth/me', {
         headers: {
           Authorization: `Bearer ${token}`
         }
       });
-
+  
       if (!userResponse.data.id) {
         throw new Error('ID do usuário não encontrado');
       }
-
+  
       localStorage.setItem('userId', userResponse.data.id.toString());
       localStorage.setItem('userData', JSON.stringify(userResponse.data));
-      localStorage.setItem('token', token);
-
+      localStorage.setItem('token', token); 
+  
       if (response.data.cadastroCompleto) {
         navegarPara('/home');
       } else {
         navegarPara('/home');
       }
-
+  
     } catch (err) {
       console.error('Erro no login:', err);
-      setError(err.response?.data?.message ||
-                err.message ||
-                'Erro ao fazer login');
+      
+      if (err.response && err.response.status === 500) {
+        setError('Credenciais inválidas. Verifique seu e-mail e senha.');
+      } 
+      else if (err.response && err.response.status === 403) {
+        setError('Sua conta ainda não foi verificada. Por favor, verifique seu e-mail.');
+      }
+      else if (err.response && err.response.status === 404) {
+        setError('Usuário não encontrado. Verifique seu e-mail ou cadastre-se.');
+      }
+
+      else {
+        setError(err.response?.data?.message || 
+                err.message || 
+                'Erro ao fazer login. Tente novamente.');
+      }
+      
       localStorage.removeItem('token');
       localStorage.removeItem('userId');
     } finally {
       setLoading(false);
     }
   };
-
+  
   const handleGoogleLogin = async () => {
     setError('');
     setLoading(true);
-
+    
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
       const idToken = await user.getIdToken();
-
+  
       const backendResponse = await axios.post('/auth/google-auth', {
         idToken: idToken
       });
-
+  
       localStorage.setItem('token', backendResponse.data.token);
-
+  
       if (backendResponse.data.cadastroCompleto) {
         setUsuarioLogado(true);
         navegarPara('/home');
@@ -159,14 +172,14 @@ const Inicial = () => {
           name: user.displayName,
           idToken: idToken
         });
-
+  
         try {
           const userCheck = await axios.get('/auth/me', {
             headers: {
               Authorization: `Bearer ${backendResponse.data.token}`
             }
           });
-
+  
           if (userCheck.data.interesses) {
             setInteressesSelecionados(
               userCheck.data.interesses.split(',')
@@ -174,7 +187,7 @@ const Inicial = () => {
                 .filter(item => item)
             );
           }
-
+  
           if (userCheck.data.pergunta_resposta) {
             try {
               const perguntas = JSON.parse(userCheck.data.pergunta_resposta);
@@ -193,13 +206,30 @@ const Inicial = () => {
       }
     } catch (err) {
       console.error("Erro no login com Google:", err);
-
+      
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Login com Google cancelado.');
-      } else if (err.response) {
+      } 
+      else if (err.code === 'auth/account-exists-with-different-credential') {
+        setError('Este e-mail já está cadastrado com outro método de login.');
+      }
+      else if (err.code && err.code.startsWith('auth/')) {
+        setError('Erro na autenticação com Google. Tente novamente.');
+      }
+      else if (err.response) {
         const backendError = err.response.data;
-        setError(typeof backendError === 'string' ? backendError : backendError.message || 'Erro ao fazer login com Google');
-      } else {
+        
+        if (err.response.status === 401) {
+          setError('Autenticação com Google falhou. Tente novamente.');
+        } 
+        else if (err.response.status === 403) {
+          setError('Acesso não autorizado. Sua conta pode estar desativada.');
+        }
+        else {
+          setError(typeof backendError === 'string' ? backendError : backendError.message || 'Erro ao fazer login com Google');
+        }
+      } 
+      else {
         setError(`Erro ao fazer login com Google: ${err.message || 'Tente novamente.'}`);
       }
     } finally {
@@ -227,64 +257,53 @@ const Inicial = () => {
     e.preventDefault();
     setError('');
     setLoading(true);
-
+    
     if (!selectedQuestion || !answer) {
       setError('Pergunta e resposta de segurança são obrigatórias.');
       setLoading(false);
       return;
     }
-
+  
     const pergunta_resposta = [{
       pergunta: selectedQuestion,
       resposta: answer
     }];
-
+  
     try {
       const response = await axios.post('/auth/register/google', {
         idToken: googleUserData.idToken,
-        pergunta_resposta: pergunta_resposta,
+        pergunta_resposta: pergunta_resposta, 
         interesses: interessesSelecionados.join(','),
         nome: googleUserData.name,
         email: googleUserData.email
       });
-
+  
       localStorage.setItem('token', response.data.token);
       setUsuarioLogado(true);
       navegarPara('/home');
     } catch (err) {
-      if (err.response && err.response.data) {
-        setError(typeof err.response.data === 'object' ?
-          err.response.data.message || 'Erro ao registrar usuário' :
-          err.response.data);
-      } else if (err.request) {
-        setError('Sem resposta do servidor');
-      } else {
-        setError('Erro ao configurar requisição');
+      if (err.response && err.response.status === 400) {
+        setError('Dados inválidos. Verifique as informações fornecidas.');
+      }
+      else if (err.response && err.response.status === 409) {
+        setError('Este e-mail já está cadastrado.');
+      }
+      else if (err.response && err.response.status >= 500) {
+        setError('Erro no servidor. Por favor, tente novamente mais tarde.');
+      }
+      else if (err.request) {
+        setError('Sem resposta do servidor. Verifique sua conexão.');
+      } 
+      else {
+        setError(typeof err.response?.data === 'object' ? 
+          err.response?.data?.message || 'Erro ao registrar usuário' : 
+          'Erro ao configurar requisição');
       }
     } finally {
       setLoading(false);
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      setLoading(true);
-      localStorage.removeItem('token');
-      await auth.signOut();
-      setUsuarioLogado(false);
-      navegarPara('/');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Se `usuarioLogado` for verdadeiro, o usuário já está logado e o redirecionamento
-  // para `/home` já deveria ter acontecido no `useEffect`.
-  // Este bloco `if (usuarioLogado)` só será renderizado brevemente caso o `useEffect`
-  // ainda não tenha disparado o redirecionamento, ou se houver um atraso na navegação.
-  // No entanto, para evitar duplicação de lógica ou comportamento inesperado,
-  // é melhor que o redirecionamento aconteça o mais cedo possível.
-  // A lógica de `useEffect` no início do componente é a maneira mais robusta para isso.
   if (usuarioLogado) {
     return (
       <div>
