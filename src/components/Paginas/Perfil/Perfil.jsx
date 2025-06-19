@@ -153,7 +153,6 @@ const Perfil = () => {
   const [showPlaylistSuccessModal, setShowPlaylistSuccessModal] = useState(false);
   const [playlistSuccessMessage, setPlaylistSuccessMessage] = useState('');
   const [fotoUrl, setFotoUrl] = useState('');
-  const [originalFotoUrl, setOriginalFotoUrl] = useState('');
   const [totalInscritos, setTotalInscritos] = useState(0);
   const [fotoFile, setFotoFile] = useState(null);
   const [fotoPreviewUrl, setFotoPreviewUrl] = useState('');
@@ -181,7 +180,6 @@ const Perfil = () => {
         setDescricaoUsuario(response.data.descricao || '');
         setOriginalDescricaoUsuario(response.data.descricao || '');
         setFotoUrl(response.data.fotoUrl || '');
-        setOriginalFotoUrl(response.data.fotoUrl || '');
 
         if (response.data.isCriador && response.data.id_criador) {
           try {
@@ -249,57 +247,71 @@ const Perfil = () => {
       try {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
-
-        // Atualiza descrição
-        await axios.put('/usuario/descricao', { descricao: descricaoUsuario }, { headers });
-
-        // Se foi selecionada uma nova imagem:
+  
+        let newFotoUrl = fotoUrl;
         if (fotoFile) {
           const formData = new FormData();
           formData.append('file', fotoFile);
-
-          const response = await axios.post('/usuario/foto-upload', formData, {
+  
+          const response = await axios.post('/file/foto-upload', formData, {
             headers: {
               ...headers,
               'Content-Type': 'multipart/form-data'
             }
           });
-
-          // Salva a URL retornada no estado
-          const urlFoto = response.data.url;
-          setFotoUrl(urlFoto);
-          setOriginalFotoUrl(urlFoto);
+  
+          newFotoUrl = response.data.url;
         }
-
-        alert('Perfil atualizado com sucesso!');
+  
+        await axios.put('/usuario/descricao', 
+          { 
+            descricao: descricaoUsuario,
+            fotoUrl: newFotoUrl 
+          }, 
+          { headers }
+        );
+  
+        setFotoUrl(newFotoUrl);
+        setFotoFile(null);
+        setFotoPreviewUrl('');
+  
+        setVideoSuccessMessage('Perfil atualizado com sucesso!');
+        setShowVideoSuccessModal(true);
         setOriginalDescricaoUsuario(descricaoUsuario);
         setIsEditing(false);
       } catch (error) {
         console.error('Erro ao atualizar perfil:', error);
         alert('Erro ao atualizar perfil: ' + (error.response?.data || 'Tente novamente.'));
       }
-    }
-    else {
+    } else {
       setIsEditing(true);
     }
-
   };
 
   const aoSelecionarFoto = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+  
     const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
     if (!validTypes.includes(file.type)) {
-      alert('Selecione uma imagem JPEG ou PNG');
+      alert('Por favor, selecione uma imagem no formato JPEG ou PNG');
       return;
     }
-
+  
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+      alert('A imagem deve ter no máximo 5MB');
+      return;
+    }
+  
     setFotoFile(file);
     setFotoPreviewUrl(URL.createObjectURL(file));
   };
 
-
   const aoClicarCancelarEdicao = () => {
     setDescricaoUsuario(originalDescricaoUsuario);
+    setFotoFile(null);
+    setFotoPreviewUrl('');
     setIsEditing(false);
   };
 
@@ -771,22 +783,63 @@ const Perfil = () => {
       <Layout />
       <div className={styles.container}>
         <div className={styles.cartaoPerfil}>
+          {/* Botões no canto superior direito */}
+          <div className={styles.botoesSuperiores}>
+            {isEditing ? (
+              <>
+                <button className={styles.botaoSalvar} onClick={aoClicarEditar}>
+                  Salvar Alterações
+                </button>
+                <button className={styles.botaoCancelar} onClick={aoClicarCancelarEdicao}>
+                  Cancelar
+                </button>
+              </>
+            ) : (
+              <button className={styles.botaoEditar} onClick={aoClicarEditar}>
+                Editar
+              </button>
+            )}
+          </div>
+  
           {isEditing ? (
             <>
-              <input type="file" accept="image/*" onChange={aoSelecionarFoto} />
-              {fotoPreviewUrl && (
-                <img src={fotoPreviewUrl} alt="Pré-visualização" className={styles.imagemPerfil} />
-              )}
+              <div className={styles.fotoUploadContainer}>
+                <label htmlFor="fotoUpload" className={styles.fotoUploadLabel}>
+                  <span className={styles.uploadIcon}>📷</span>
+                  <span>Alterar Foto</span>
+                  <input 
+                    id="fotoUpload"
+                    type="file" 
+                    accept="image/jpeg, image/png" 
+                    onChange={aoSelecionarFoto} 
+                    className={styles.fotoUploadInput}
+                  />
+                </label>
+                <p className={styles.fileName}>
+                  {fotoFile ? fotoFile.name : "Nenhum arquivo escolhido"}
+                </p>
+              </div>
+              <img
+                src={fotoPreviewUrl || fotoUrl || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg'}
+                alt="Foto de Perfil"
+                className={styles.imagemPerfil}
+                onError={(e) => {
+                  e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
+                }}
+              />
             </>
           ) : (
             <img
               src={fotoUrl || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg'}
               alt="Foto de Perfil"
               className={styles.imagemPerfil}
+              onError={(e) => {
+                e.target.src = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
+              }}
             />
           )}
-
-
+  
+          {/* Informações do perfil */}
           <div className={styles.infoPerfil}>
             <h2 className={styles.nomeUsuario}>{nomeCompleto}</h2>
             <p className={styles.emailUsuario}>{emailUsuario}</p>
@@ -800,7 +853,7 @@ const Perfil = () => {
             />
             {isCriador ? (
               <p className={styles.tipoUsuario}>
-              Criador de Conteúdo • {formatSubscribers(totalInscritos)} inscritos
+                Criador de Conteúdo • {formatSubscribers(totalInscritos)} inscritos
               </p>
             ) : isAdmin ? (
               <p className={styles.tipoUsuario}>Administrador</p>
@@ -808,15 +861,9 @@ const Perfil = () => {
               <p className={styles.tipoUsuario}>Usuário</p>
             )}
           </div>
-          <div className={styles.botoesContainer}>
-            <button className={styles.botaoEditar} onClick={aoClicarEditar}>
-              {isEditing ? 'Salvar Alterações' : 'Editar'}
-            </button>
-            {isEditing && (
-              <button className={styles.botaoCancelar} onClick={aoClicarCancelarEdicao}>
-                Cancelar
-              </button>
-            )}
+  
+          {/* Botões adicionais (registro, admin, etc.) */}
+          <div className={styles.botoesAdicionais}>
             {!isCriador && !isAdmin && (
               <button
                 className={styles.botaoRegister}
@@ -835,26 +882,30 @@ const Perfil = () => {
             )}
           </div>
         </div>
+  
+        {/* Seções de conteúdo */}
         <div className={styles.contentSections}>
-  {secoesFiltradas.map(secao => (
-    <div key={secao.id} className={styles.section}>
-      <div 
-        className={styles.sectionHeader}
-        onClick={() => alternarSecao(secao.id)}
-      >
-        <h2>{secao.titulo}</h2>
-        <HiChevronDown className={`${styles.sectionIcon} ${
-          secoesAtivas.includes(secao.id) ? styles.rotated : ''
-        }`}/>
-      </div>
-      <div className={`${styles.sectionContent} ${
-        secoesAtivas.includes(secao.id) ? styles.active : ''
-      }`}>
-        {secao.conteudo}
-      </div>
-    </div>
-  ))}
-</div>
+          {secoesFiltradas.map(secao => (
+            <div key={secao.id} className={styles.section}>
+              <div 
+                className={styles.sectionHeader}
+                onClick={() => alternarSecao(secao.id)}
+              >
+                <h2>{secao.titulo}</h2>
+                <HiChevronDown className={`${styles.sectionIcon} ${
+                  secoesAtivas.includes(secao.id) ? styles.rotated : ''
+                }`}/>
+              </div>
+              <div className={`${styles.sectionContent} ${
+                secoesAtivas.includes(secao.id) ? styles.active : ''
+              }`}>
+                {secao.conteudo}
+              </div>
+            </div>
+          ))}
+        </div>
+  
+        {/* Botão Sair */}
         <button className={styles.botaoSair} onClick={aoClicarSair}>
           Sair da conta
         </button>
@@ -871,7 +922,6 @@ const Perfil = () => {
         message={videoSuccessMessage}
         onClose={() => setShowVideoSuccessModal(false)}
       />
-
       <ConfirmationModal
         show={showConfirmPlaylistModal}
         message={`Tem certeza que deseja excluir a playlist "${playlistToDelete?.nome}"?`}
