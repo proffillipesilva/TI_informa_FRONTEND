@@ -43,6 +43,7 @@ html::-webkit-scrollbar {
   font-size: 34px;
   font-weight: bold;
   color: black;
+  margin-left: 1500px;
   caret-color: transparent;
 }
 
@@ -86,156 +87,339 @@ html::-webkit-scrollbar {
   background-color: #6B8BA4;
 }
 
-@media (max-width: 425px) {
-  .tituloCabecalho {
-    font-size: 18px;
-    margin-left: 0;
+@media (min-width: 320px) and (max-width: 425px) {
+  .cabecalho {
+    height: 60px;
+    padding: 0 10px;
   }
+
+  .botaoMenu {
+    font-size: 20px;
+    padding: 10px;
+  }
+
+  .tituloCabecalho {
+    font-size: 20px;
+    margin-left: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   .logo {
-    max-width: 30vw;
+    max-height: 50px;
+    max-width: 25vw;
+  }
+
+  .menuLateral {
+    width: 200px;
+    left: -200px;
+    padding-top: 60px;
   }
 }
 
 @media (min-width: 426px) and (max-width: 480px) {
-  .tituloCabecalho {
-    font-size: 20px;
-    margin-left: 0;
+  .cabecalho {
+    height: 65px;
+    padding: 0 15px;
   }
+
+  .botaoMenu {
+    font-size: 22px;
+    padding: 12px;
+  }
+
+  .tituloCabecalho {
+    font-size: 24px;
+    margin-left: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   .logo {
-    max-width: 28vw;
+    max-height: 55px;
+    max-width: 22vw;
+  }
+
+  .menuLateral {
+    width: 220px;
+    left: -220px;
+    padding-top: 65px;
   }
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
-  .tituloCabecalho {
-    font-size: 22px;
-    margin-left: 0;
+  .cabecalho {
+    height: 70px;
+    padding: 0 15px;
   }
+
+  .botaoMenu {
+    font-size: 24px;
+    padding: 15px;
+  }
+
+  .tituloCabecalho {
+    font-size: 28px;
+    margin-left: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   .logo {
-    max-width: 25vw;
+    max-height: 60px;
+    max-width: 20vw;
+  }
+
+  .menuLateral {
+    width: 250px;
+    left: -250px;
+    padding-top: 70px;
   }
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
-  .tituloCabecalho {
-    font-size: 24px;
-    margin-left: 0;
+  .cabecalho {
+    height: 80px;
+    padding: 0 20px;
   }
+
+  .botaoMenu {
+    font-size: 26px;
+  }
+
+  .tituloCabecalho {
+    font-size: 30px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
   .logo {
-    max-width: 22vw;
+    max-height: 70px;
+    max-width: 18vw;
+  }
+
+  .menuLateral {
+    width: 280px;
+    left: -280px;
+    padding-top: 80px;
   }
 }
 
 @media (min-width: 1024px) and (max-width: 1200px) {
-  .tituloCabecalho {
-    font-size: 26px;
-    margin-left: 0;
+  .cabecalho {
+    height: 85px;
+    padding: 0 25px;
   }
+
+  .botaoMenu {
+    font-size: 28px;
+  }
+
+  .tituloCabecalho {
+    font-size: 32px;
+    margin-left: 500px;
+  }
+
   .logo {
-    max-width: 20vw;
+    max-height: 75px;
+    max-width: 15vw;
+  }
+
+  .menuLateral {
+    width: 300px;
+    left: -300px;
+    padding-top: 85px;
   }
 }
 
 @media (min-width: 1201px) and (max-width: 1440px) {
+  .cabecalho {
+    height: 90px;
+    padding: 0 30px;
+  }
+
+  .botaoMenu {
+    font-size: 30px;
+  }
+
   .tituloCabecalho {
-    font-size: 28px;
-    margin-left: 0;
+    font-size: 36px;
+    margin-left: 800px;
+  }
+
+  .logo {
+    max-height: 80px;
+    max-width: 12vw;
+  }
+
+  .menuLateral {
+    width: 320px;
+    left: -320px;
+    padding-top: 90px;
   }
 }
 
 @media (min-width: 1441px) and (max-width: 1619px) {
+  .cabecalho {
+    height: 95px;
+    padding: 0 35px;
+  }
+
+  .botaoMenu {
+    font-size: 32px;
+  }
+
   .tituloCabecalho {
-    font-size: 30px;
-    margin-left: 0;
+    font-size: 38px;
+    margin-left: 1000px;
+  }
+
+  .logo {
+    max-height: 85px;
+    max-width: 10vw;
+  }
+
+  .menuLateral {
+    width: 350px;
+    left: -350px;
+    padding-top: 95px;
   }
 }
 
-@media (min-width: 1920px) and (max-width: 2560px) {
-  .tituloCabecalho {
+@media (min-width: 1921px) and (max-width: 2560px) {
+  .cabecalho {
+    height: 100px;
+    padding: 0 40px;
+  }
+
+  .botaoMenu {
     font-size: 36px;
+  }
+
+  .tituloCabecalho {
+    font-size: 44px;
+    margin-left: 1700px;
+  }
+
+  .logo {
+    max-height: 90px;
+    max-width: 8vw;
+  }
+
+  .menuLateral {
+    width: 400px;
+    left: -400px;
+    padding-top: 100px;
   }
 }
 
 @media (min-width: 2561px) and (max-width: 3840px) {
-  .tituloCabecalho {
-    font-size: 42px;
-  }
   .cabecalho {
     height: 120px;
+    padding: 0 50px;
   }
-  .menuLateral {
-    width: 350px;
-    left: -350px;
-    padding-top: 120px;
-  }
+
   .botaoMenu {
-    font-size: 32px;
+    font-size: 44px;
   }
-  .menuLateral li {
-    padding: 20px 25px;
-    font-size: 24px;
+
+  .tituloCabecalho {
+    font-size: 56px;
+    margin-left: 2500px;
+  }
+
+  .logo {
+    max-height: 110px;
+    max-width: 7vw;
+  }
+
+  .menuLateral {
+    width: 500px;
+    left: -500px;
+    padding-top: 120px;
   }
 }
 
 @media (min-width: 3841px) and (max-width: 5120px) {
-  .tituloCabecalho {
-    font-size: 48px;
-  }
   .cabecalho {
     height: 150px;
+    padding: 0 60px;
   }
-  .menuLateral {
-    width: 450px;
-    left: -450px;
-    padding-top: 150px;
-  }
+
   .botaoMenu {
-    font-size: 40px;
+    font-size: 56px;
   }
-  .menuLateral li {
-    padding: 25px 30px;
-    font-size: 28px;
+
+  .tituloCabecalho {
+    font-size: 72px;
+    margin-left: 3500px;
+  }
+
+  .logo {
+    max-height: 140px;
+    max-width: 6vw;
+  }
+
+  .menuLateral {
+    width: 600px;
+    left: -600px;
+    padding-top: 150px;
   }
 }
 
 @media (min-width: 5121px) and (max-width: 7680px) {
-  .tituloCabecalho {
-    font-size: 54px;
-  }
   .cabecalho {
-    height: 180px;
+    height: 200px;
+    padding: 0 70px;
   }
-  .menuLateral {
-    width: 550px;
-    left: -550px;
-    padding-top: 180px;
-  }
+
   .botaoMenu {
-    font-size: 48px;
+    font-size: 72px;
   }
-  .menuLateral li {
-    padding: 30px 35px;
-    font-size: 32px;
+
+  .tituloCabecalho {
+    font-size: 96px;
+    margin-left: 5000px;
+  }
+
+  .logo {
+    max-height: 180px;
+    max-width: 5vw;
+  }
+
+  .menuLateral {
+    width: 750px;
+    left: -750px;
+    padding-top: 200px;
   }
 }
 
 @media (min-width: 7681px) {
-  .tituloCabecalho {
-    font-size: 60px;
-  }
   .cabecalho {
-    height: 200px;
+    height: 250px;
+    padding: 0 80px;
   }
-  .menuLateral {
-    width: 650px;
-    left: -650px;
-    padding-top: 200px;
-  }
+
   .botaoMenu {
-    font-size: 56px;
+    font-size: 96px;
   }
-  .menuLateral li {
-    padding: 35px 40px;
-    font-size: 36px;
+
+  .tituloCabecalho {
+    font-size: 120px;
+    margin-left: 7000px;
+  }
+
+  .logo {
+    max-height: 220px;
+    max-width: 4vw;
+  }
+
+  .menuLateral {
+    width: 900px;
+    left: -900px;
+    padding-top: 250px;
   }
 }
