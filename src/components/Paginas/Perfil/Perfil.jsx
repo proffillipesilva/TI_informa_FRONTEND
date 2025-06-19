@@ -54,7 +54,6 @@ const SuccessModal = ({ show, message, onClose }) => {
   );
 };
 
-
 const AddToPlaylistButton = ({ videoId, playlists }) => {
   const [showSelect, setShowSelect] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState('');
