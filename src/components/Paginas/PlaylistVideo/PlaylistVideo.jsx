@@ -456,102 +456,106 @@ const PlaylistVideo = () => {
     }
   };
 
-  const fetchMediaAvaliacoes = async (videoId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const headers = token ? { Authorization: `Bearer ${token}` } : {};
-      const response = await axios.get(`/avaliacoes/video/${videoId}/media`, { headers });
-      return response.data;
-    } catch (error) {
-      console.error('Erro ao buscar média de avaliações:', error);
-      return 0.0;
-    }
-  };
-
   const handleSubmitEvaluation = async () => {
-    try {
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-      
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId'); 
+    
+    try {    
       if (!userId || userId === "undefined" || isNaN(userId)) {
         setRatingMessage('ID de usuário inválido. Faça login novamente.');
         localStorage.removeItem('userId');
         navigate('/login');
         return;
       }
-
+  
       if (hasRated) {
         setRatingMessage('Você já avaliou este vídeo.');
         setTimeout(() => setRatingMessage(''), 3000);
         return;
       }
-
+  
       if (userRating === 0) {
         setRatingMessage('Por favor, selecione uma nota (estrelas).');
         setTimeout(() => setRatingMessage(''), 3000);
         return;
       }
-
+  
       if (!comment.trim()) {
         setRatingMessage('Por favor, adicione um comentário.');
         setTimeout(() => setRatingMessage(''), 3000);
         return;
       }
-
+  
       setRatingMessage('Enviando sua avaliação...');
-
-      const response = await axios.post('/avaliacoes/create', {
-        userId: Number(userId),
-        videoId: Number(currentVideoId),
-        nota: userRating,
-        comentario: comment
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.data) {
-        const refreshedEval = await axios.get(
-          `/avaliacoes/usuario/${userId}/video/${currentVideoId}`,
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        
-        if (refreshedEval.data) {
-          setExistingEvaluation({
-            ...refreshedEval.data,
-            dataAvaliacao: refreshedEval.data.dataAvaliacao || new Date().toISOString()
-          });
-          setHasRated(true);
-          setUserRating(refreshedEval.data.nota);
-          setComment(refreshedEval.data.comentario);
-        }
-        
-        const mediaAtualizada = await fetchMediaAvaliacoes(currentVideoId);
-        
-        setVideoData(prev => ({
-          ...prev,
-          avaliacaoMedia: mediaAtualizada
-        }));
-
-        setRatingMessage('Obrigado pela sua avaliação!');
+  
+      await Promise.all([
+        axios.post('/avaliacoes/create', {
+          userId: Number(userId),
+          videoId: Number(videoId),
+          nota: userRating,
+          comentario: comment
+        }, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        }),
+        axios.get(`/file/${videoId}/avaliacao-media`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+  
+      const [evalResponse, mediaResponse] = await Promise.all([
+        axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        }),
+        axios.get(`/file/${videoId}/avaliacao-media`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+      ]);
+  
+      if (evalResponse.data) {
+        setExistingEvaluation({
+          ...evalResponse.data,
+          dataAvaliacao: evalResponse.data.dataAvaliacao || new Date().toISOString()
+        });
+        setHasRated(true);
+        setUserRating(evalResponse.data.nota);
+        setComment(evalResponse.data.comentario);
       }
+  
+      setVideoData(prev => ({
+        ...prev,
+        avaliacaoMedia: mediaResponse.data
+      }));
+  
+      setRatingMessage('Obrigado pela sua avaliação!');
+  
     } catch (err) {
       console.error('Erro ao avaliar o vídeo:', err);
+      
       if (err.response?.status === 401) {
         localStorage.removeItem('token');
         localStorage.removeItem('userId');
         setRatingMessage('Sessão expirada. Faça login novamente.');
         navigate('/login', { state: { from: location.pathname } });
+        
       } else if (err.response?.status === 409) {
         setRatingMessage('Você já avaliou este vídeo anteriormente.');
         setHasRated(true);
+        
         try {
-          const evalResponse = await axios.get(
-            `/avaliacoes/usuario/${currentUserId}/video/${currentVideoId}`,
-            { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
-          );
+          if (!token) throw new Error('Token não encontrado');
+  
+          const [evalResponse, mediaResponse] = await Promise.all([
+            axios.get(`/avaliacoes/usuario/${userId}/video/${videoId}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            }),
+            axios.get(`/file/${videoId}/avaliacao-media`, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+          ]);
+  
           if (evalResponse.data) {
             setExistingEvaluation({
               ...evalResponse.data,
@@ -560,9 +564,17 @@ const PlaylistVideo = () => {
             setUserRating(evalResponse.data.nota);
             setComment(evalResponse.data.comentario);
           }
+  
+          setVideoData(prev => ({
+            ...prev,
+            avaliacaoMedia: mediaResponse.data
+          }));
+  
         } catch (fetchErr) {
           console.error('Erro ao buscar avaliação existente:', fetchErr);
+          setRatingMessage('Erro ao carregar avaliação existente.');
         }
+        
       } else {
         setRatingMessage(err.response?.data?.message || 'Erro ao avaliar. Tente novamente.');
       }
@@ -571,49 +583,53 @@ const PlaylistVideo = () => {
     }
   };
 
-  const handleDeleteEvaluation = async () => {
-    if (!existingEvaluation) return;
+const handleDeleteEvaluation = async () => {
+  if (!existingEvaluation) return;
 
-    try {
-      setIsDeleting(true);
-      setRatingMessage('Removendo sua avaliação...');
+  try {
+    setIsDeleting(true);
+    setRatingMessage('Removendo sua avaliação...');
 
-      const token = localStorage.getItem('token');
-      const userId = localStorage.getItem('userId');
-      
-      if (!token || !userId) {
-        navigate('/login');
-        return;
-      }
-
-      await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'X-User-Id': userId
-        }
-      });
-
-      setExistingEvaluation(null);
-      setHasRated(false);
-      setUserRating(0);
-      setComment('');
-      
-      const mediaAtualizada = await fetchMediaAvaliacoes(currentVideoId);
-      
-      setVideoData(prev => ({
-        ...prev,
-        avaliacaoMedia: mediaAtualizada
-      }));
-
-      setRatingMessage('Avaliação removida com sucesso!');
-    } catch (err) {
-      console.error('Erro ao remover avaliação:', err);
-      setRatingMessage(err.response?.data?.message || 'Erro ao remover avaliação. Tente novamente.');
-    } finally {
-      setIsDeleting(false);
-      setTimeout(() => setRatingMessage(''), 3000);
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    
+    if (!token || !userId) {
+      navigate('/login');
+      return;
     }
-  };
+
+    await axios.delete(`/avaliacoes/${existingEvaluation.id}`, {
+      headers: { 
+        Authorization: `Bearer ${token}`,
+        'X-User-Id': userId
+      }
+    });
+
+    const mediaResponse = await axios.get(`/file/${videoId}/avaliacao-media`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    
+    const mediaAtualizada = mediaResponse.data;
+
+    setExistingEvaluation(null);
+    setHasRated(false);
+    setUserRating(0);
+    setComment('');
+    
+    setVideoData(prev => ({
+      ...prev,
+      avaliacaoMedia: mediaAtualizada
+    }));
+
+    setRatingMessage('Avaliação removida com sucesso!');
+  } catch (err) {
+    console.error('Erro ao remover avaliação:', err);
+    setRatingMessage(err.response?.data?.message || 'Erro ao remover avaliação. Tente novamente.');
+  } finally {
+    setIsDeleting(false);
+    setTimeout(() => setRatingMessage(''), 3000);
+  }
+};
 
   const handleRecommendedVideoClick = useCallback((video) => {
     if (!video) return;
