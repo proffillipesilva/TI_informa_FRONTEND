@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'; // Importe useEffect
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import imagem from './Foto.jpg'
 import styles from './Inicial.module.css';
@@ -44,18 +44,14 @@ const Inicial = () => {
   const [loading, setLoading] = useState(false);
   const navegarPara = useNavigate();
 
-  // NOVO: Adicione este useEffect para verificar o token ao carregar a página
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      // Se um token existir, significa que o usuário está logado
-      // Você pode adicionar uma validação de token aqui se necessário,
-      // mas para redirecionamento imediato, a presença do token já é suficiente.
       setUsuarioLogado(true);
       navegarPara('/home');
     }
-  }, [navegarPara]); // O array vazio de dependências garante que isso rode apenas uma vez na montagem
-
+  }, [navegarPara]); 
+  
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
@@ -80,6 +76,18 @@ const Inicial = () => {
         : [...prevInteresses, interesse]
     );
   };
+
+    const handleLogout = async () => {
+      try {
+        setLoading(true);
+        localStorage.removeItem('token');
+        await auth.signOut();
+        setUsuarioLogado(false);
+        navegarPara('/');
+      } finally {
+        setLoading(false);
+      }
+    };
 
   const estaSelecionado = (interesse) => interessesSelecionados.includes(interesse);
   const handleSubmit = async (e) => {

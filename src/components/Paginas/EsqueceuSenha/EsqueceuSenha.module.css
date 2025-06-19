@@ -40,7 +40,7 @@
 }
 
 .perguntaSeguranca {
-  font-size: 1.125rem; 
+  font-size: 1.125rem;
   font-weight: bold;
   margin-bottom: 15px;
   color: #333;
@@ -126,43 +126,179 @@
   bottom: 0;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 425px) {
   .container {
     margin-top: 60px;
     margin-bottom: 60px;
     min-height: calc(100vh - 120px);
+    padding: 10px;
   }
-
-  .title {
-    font-size: 1.75rem;
-  }
-
-  .card, .register {
+  .card {
     padding: 20px;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .perguntaSeguranca {
+    font-size: 1rem;
   }
 }
 
-@media (max-width: 480px) {
+@media (min-width: 426px) and (max-width: 480px) {
   .container {
-    padding: 10px;
-    margin-top: 50px;
-    margin-bottom: 50px;
+    margin-top: 70px;
+    margin-bottom: 70px;
   }
+  .card {
+    padding: 25px;
+  }
+}
 
+@media (min-width: 481px) and (max-width: 767px) {
+  .container {
+    margin-top: 70px;
+    margin-bottom: 70px;
+  }
+  .formSection {
+    max-width: 420px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .container {
+    margin-top: 75px;
+    margin-bottom: 75px;
+  }
+  .formSection {
+    max-width: 450px;
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .formSection {
+    max-width: 470px;
+  }
+}
+
+@media (min-width: 1201px) and (max-width: 1440px) {
+  .formSection {
+    max-width: 485px;
+  }
+}
+
+@media (min-width: 1441px) and (max-width: 1619px) {
+  .formSection {
+    max-width: 500px;
+  }
+}
+
+@media (min-width: 1921px) and (max-width: 2560px) {
+  .container {
+    margin-top: 100px;
+    margin-bottom: 100px;
+  }
+  .formSection {
+    max-width: 550px;
+  }
   .title {
-    font-size: 1.5rem;
-    margin-bottom: 15px;
+    font-size: 2.2rem;
   }
-
-  .card, .register {
+  .instructionText, .perguntaSeguranca {
+    font-size: 1.1rem;
+  }
+  .input, .button {
     padding: 15px;
   }
+}
 
-  .input, .button {
-    padding: 10px;
+@media (min-width: 2561px) and (max-width: 3840px) {
+  .container {
+    margin-top: 120px;
+    margin-bottom: 120px;
   }
+  .formSection {
+    max-width: 600px;
+  }
+  .title {
+    font-size: 2.5rem;
+  }
+  .instructionText, .perguntaSeguranca {
+    font-size: 1.25rem;
+  }
+  .input, .button {
+    padding: 18px;
+    font-size: 1.1rem;
+  }
+  .registerText, .registerLink {
+    font-size: 1rem;
+  }
+}
 
-  .bar {
-    height: 60px;
+@media (min-width: 3841px) and (max-width: 5120px) {
+  .container {
+    margin-top: 150px;
+    margin-bottom: 150px;
+  }
+  .formSection {
+    max-width: 700px;
+  }
+  .title {
+    font-size: 3rem;
+  }
+  .instructionText, .perguntaSeguranca {
+    font-size: 1.5rem;
+  }
+  .input, .button {
+    padding: 20px;
+    font-size: 1.25rem;
+  }
+  .registerText, .registerLink {
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 5121px) and (max-width: 7680px) {
+  .container {
+    margin-top: 200px;
+    margin-bottom: 200px;
+  }
+  .formSection {
+    max-width: 800px;
+  }
+  .title {
+    font-size: 3.5rem;
+  }
+  .instructionText, .perguntaSeguranca {
+    font-size: 1.75rem;
+  }
+  .input, .button {
+    padding: 25px;
+    font-size: 1.5rem;
+  }
+  .registerText, .registerLink {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 7681px) {
+  .container {
+    margin-top: 250px;
+    margin-bottom: 250px;
+  }
+  .formSection {
+    max-width: 900px;
+  }
+  .title {
+    font-size: 4rem;
+  }
+  .instructionText, .perguntaSeguranca {
+    font-size: 2rem;
+  }
+  .input, .button {
+    padding: 30px;
+    font-size: 1.75rem;
+  }
+  .registerText, .registerLink {
+    font-size: 1.5rem;
   }
 }

@@ -50,7 +50,6 @@
   border-color: #0056b3;
 }
 
-
 .menu {
   position: relative;
   top: 20px;
@@ -130,7 +129,6 @@
   width: 420px;
   text-align: center;
   margin-bottom: 30px;
-
 }
 
 .introParagraph {
@@ -326,4 +324,239 @@ body {
   font-weight: bold;
   font-size: 1.35rem;
   margin-bottom: 20px;
+}
+
+@media (max-width: 425px) {
+  .headerTitle {
+    font-size: 24px;
+    margin-left: 0;
+  }
+  .logo {
+    width: 100px;
+  }
+  .card, .card_perguntas {
+    width: 100%;
+    padding: 60px 30px;
+  }
+
+  .forgotPassword {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 1rem;
+    outline: none;
+    margin-top: 10px;
+    position: relative;
+    top: 40px;
+  }
+  
+  .register {
+    width: 100%;
+    padding: 15px 30px;
+  }
+  .title {
+    font-size: 28px;
+    top: -30px;
+  }
+  .input, .button {
+    padding: 10px;
+  }
+  .container {
+    flex-direction: column;
+    margin-top: 60px;
+    margin-bottom: 60px;
+  }
+  .imageSection {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 426px) and (max-width: 480px) {
+  .headerTitle {
+    font-size: 26px;
+    margin-left: 0;
+  }
+  .logo {
+    width: 110px;
+  }
+  .card, .card_perguntas{
+    width: 380px;
+    padding: 70px 20px;
+  }
+
+  .register {
+    width: 100%;
+    padding: 15px 30px;
+  }
+
+  .forgotPassword {
+    background: none;
+    border: none;
+    color: #007bff;
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 1rem;
+    outline: none;
+    margin-top: 10px;
+    position: relative;
+    top: 40px;
+  }
+
+  .title {
+    font-size: 30px;
+  }
+  .container {
+    flex-direction: column;
+  }
+  .imageSection {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .headerTitle {
+    font-size: 28px;
+    margin-left: 0;
+  }
+
+  .title {
+    font-size: 32px;
+  }
+  .container {
+    flex-direction: column;
+  }
+  .imageSection {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .headerTitle {
+    margin-left: 1300px;
+  }
+}
+
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .headerTitle {
+    margin-left: 1300px;
+  }
+}
+
+@media (min-width: 1201px) and (max-width: 1440px) {
+  .headerTitle {
+    margin-left: 1300px;
+  }
+}
+
+@media (min-width: 1441px) and (max-width: 1619px) {
+  .headerTitle {
+    margin-left: 1400px;
+  }
+}
+
+@media (min-width: 1921px) and (max-width: 2560px) {
+  .headerTitle {
+    margin-left: 1800px;
+    font-size: 36px;
+  }
+  .logo {
+    width: 140px;
+  }
+  .card, .card_perguntas, .register {
+    width: 480px;
+    padding: 100px 30px;
+  }
+  .title {
+    font-size: 42px;
+  }
+}
+
+@media (min-width: 2561px) and (max-width: 3840px) {
+  .headerTitle {
+    margin-left: 2200px;
+    font-size: 42px;
+  }
+  .logo {
+    width: 160px;
+  }
+  .card, .card_perguntas, .register {
+    width: 520px;
+    padding: 120px 40px;
+  }
+  .title {
+    font-size: 48px;
+  }
+  .input, .button {
+    padding: 16px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (min-width: 3841px) and (max-width: 5120px) {
+  .headerTitle {
+    margin-left: 3000px;
+    font-size: 48px;
+  }
+  .logo {
+    width: 180px;
+  }
+  .card, .card_perguntas, .register {
+    width: 600px;
+    padding: 140px 50px;
+  }
+  .title {
+    font-size: 54px;
+  }
+  .input, .button {
+    padding: 18px;
+    font-size: 1.2rem;
+  }
+}
+
+@media (min-width: 5121px) and (max-width: 7680px) {
+  .headerTitle {
+    margin-left: 4000px;
+    font-size: 54px;
+  }
+  .logo {
+    width: 200px;
+  }
+  .card, .card_perguntas, .register {
+    width: 700px;
+    padding: 160px 60px;
+  }
+  .title {
+    font-size: 60px;
+  }
+  .input, .button {
+    padding: 20px;
+    font-size: 1.3rem;
+  }
+}
+
+@media (min-width: 7681px) {
+  .headerTitle {
+    margin-left: 5000px;
+    font-size: 60px;
+  }
+  .logo {
+    width: 220px;
+  }
+  .card, .card_perguntas, .register {
+    width: 800px;
+    padding: 180px 70px;
+  }
+  .title {
+    font-size: 66px;
+  }
+  .input, .button {
+    padding: 22px;
+    font-size: 1.4rem;
+  }
 }

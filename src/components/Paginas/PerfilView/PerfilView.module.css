@@ -295,7 +295,6 @@
   background-color: #0056b3;
 }
 
-
 .subscriberCount {
   font-size: 15.3px;
   color: #666;
@@ -305,3 +304,281 @@
   transform: translateY(-18px);
 }
 
+@media (max-width: 425px) {
+  .profileContainer {
+    margin-top: 80px;
+    padding: 10px;
+  }
+  
+  .profileHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .profileImage {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .profileName {
+    font-size: 24px;
+  }
+  
+  .profileDescription, .profileEducation {
+    transform: none;
+    text-align: center;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: 1fr;
+    padding: 0 10px 10px;
+  }
+  
+  .sectionHeader h2 {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 426px) and (max-width: 480px) {
+  .profileContainer {
+    margin-top: 80px;
+    padding: 15px;
+  }
+  
+  .profileHeader {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px;
+    gap: 20px;
+  }
+  
+  .profileImage {
+    width: 130px;
+    height: 130px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 767px) {
+  .profileHeader {
+    flex-direction: row;
+    text-align: left;
+    gap: 20px;
+  }
+  
+  .profileImage {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .profileContainer {
+    margin-top: 90px;
+  }
+  
+  .profileImage {
+    width: 140px;
+    height: 140px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+  .profileContainer {
+    max-width: 1000px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1201px) and (max-width: 1440px) {
+  .profileContainer {
+    max-width: 1100px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1441px) and (max-width: 1619px) {
+  .profileContainer {
+    max-width: 1300px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1921px) and (max-width: 2560px) {
+  .profileContainer {
+    max-width: 1600px;
+  }
+  
+  .profileHeader {
+    padding: 40px;
+  }
+  
+  .profileImage {
+    width: 180px;
+    height: 180px;
+  }
+  
+  .profileName {
+    font-size: 32px;
+  }
+  
+  .profileDescription {
+    font-size: 18px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 2561px) and (max-width: 3840px) {
+  .profileContainer {
+    max-width: 2000px;
+  }
+  
+  .profileHeader {
+    padding: 50px;
+  }
+  
+  .profileImage {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .profileName {
+    font-size: 36px;
+  }
+  
+  .profileDescription {
+    font-size: 20px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(6, 1fr);
+    gap: 30px;
+  }
+  
+  .sectionHeader h2 {
+    font-size: 24px;
+  }
+}
+
+@media (min-width: 3841px) and (max-width: 5120px) {
+  .profileContainer {
+    max-width: 2500px;
+  }
+  
+  .profileHeader {
+    padding: 60px;
+  }
+  
+  .profileImage {
+    width: 250px;
+    height: 250px;
+  }
+  
+  .profileName {
+    font-size: 42px;
+  }
+  
+  .profileDescription {
+    font-size: 24px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 35px;
+  }
+  
+  .sectionHeader h2 {
+    font-size: 28px;
+  }
+}
+
+@media (min-width: 5121px) and (max-width: 7680px) {
+  .profileContainer {
+    max-width: 3000px;
+  }
+  
+  .profileHeader {
+    padding: 70px;
+  }
+  
+  .profileImage {
+    width: 300px;
+    height: 300px;
+  }
+  
+  .profileName {
+    font-size: 48px;
+  }
+  
+  .profileDescription {
+    font-size: 28px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 40px;
+  }
+  
+  .sectionHeader h2 {
+    font-size: 32px;
+  }
+}
+
+@media (min-width: 7681px) {
+  .profileContainer {
+    max-width: 3500px;
+  }
+  
+  .profileHeader {
+    padding: 80px;
+  }
+  
+  .profileImage {
+    width: 350px;
+    height: 350px;
+  }
+  
+  .profileName {
+    font-size: 54px;
+  }
+  
+  .profileDescription {
+    font-size: 32px;
+  }
+  
+  .listaVideos, .listaPlaylists {
+    grid-template-columns: repeat(9, 1fr);
+    gap: 45px;
+  }
+  
+  .sectionHeader h2 {
+    font-size: 36px;
+  }
+}

@@ -74,7 +74,7 @@
   margin-top: 100px;
   padding: 0 20px;
   border-radius: 15px;
-  transform: translateX(-220px);
+  transform: translateX(-200px);
 }
 
 .barraPesquisaContainer {
@@ -93,7 +93,7 @@
 
 .iconePesquisa {
   position: absolute;
-  right: 380px;
+  right: 395px;
   top: 50%;
   transform: translateY(-50%);
   font-size: 20px;
@@ -104,6 +104,12 @@
   display: flex;
   flex-direction: column;
   align-items: flex-end;
+}
+
+.tituloFiltros {
+  font-size: 16px;
+  margin-bottom: 5px;
+  transform: translateX(-100px);
 }
 
 .tituloFiltros {
@@ -1310,21 +1316,27 @@ body {
     padding: 0 40px;
     transform: translateX(-300px);
   }
-
   .barraPesquisaContainer {
-    width: 60%;
-    margin-left: 1500px; 
+    position: relative;
+    width: 50%;
+    margin-left: 880px;
   }
 
   .barraPesquisa {
-    width: 65%;
-    padding: 15px 50px 15px 15px;
-    font-size: 20px;
+    width: 55%;
+    padding: 10px 40px 10px 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 15px;
   }
 
   .iconePesquisa {
-    right: 500px;
-    font-size: 25px;
+    position: absolute;
+    right: 395px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    color: #888787;
   }
 
   .filtros {

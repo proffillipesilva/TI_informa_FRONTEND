@@ -68,6 +68,372 @@
     background-color: #45a049;
 }
 
-.btnReprovar:hover {
+.btnRecusar:hover {
     background-color: #d32f2f;
+}
+
+@media (max-width: 425px) {
+    .container {
+        padding: 15px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+    }
+    
+    .solicitacoesContainer {
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .table {
+        display: block;
+        width: 100%;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+    
+    .table td {
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .table td:last-child {
+        border-bottom: none;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        width: 45%;
+        display: inline-block;
+        margin: 5px 2%;
+        padding: 8px 5px;
+    }
+}
+
+@media (min-width: 426px) and (max-width: 480px) {
+        .container {
+            padding: 15px;
+            margin-top: 60px;
+            margin-bottom: 60px;
+        }
+        
+        .solicitacoesContainer {
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .table {
+            display: block;
+            width: 100%;
+        }
+        
+        .table thead {
+            display: none;
+        }
+        
+        .table tbody, .table tr, .table td {
+            display: block;
+            width: 100%;
+        }
+        
+        .table tr {
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            padding: 10px;
+        }
+        
+        .table td {
+            padding: 10px;
+            text-align: center;
+            position: relative;
+            border: none;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table td::before {
+            content: attr(data-label);
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .table td:last-child {
+            border-bottom: none;
+        }
+        
+        .btnAprovar, .btnRecusar {
+            width: 45%;
+            display: inline-block;
+            margin: 5px 2%;
+            padding: 8px 5px;
+        }
+    }
+
+@media (min-width: 481px) and (max-width: 767px) {
+    .container {
+        padding: 15px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+    }
+    
+    .solicitacoesContainer {
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .table {
+        display: block;
+        width: 100%;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+    
+    .table td {
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .table td:last-child {
+        border-bottom: none;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        width: 45%;
+        display: inline-block;
+        margin: 5px 2%;
+        padding: 8px 5px;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+    .container {
+        padding: 15px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+    }
+    
+    .solicitacoesContainer {
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .table {
+        display: block;
+        width: 100%;
+    }
+    
+    .table thead {
+        display: none;
+    }
+    
+    .table tbody, .table tr, .table td {
+        display: block;
+        width: 100%;
+    }
+    
+    .table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+    
+    .table td {
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .table td:last-child {
+        border-bottom: none;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        width: 45%;
+        display: inline-block;
+        margin: 5px 2%;
+        padding: 8px 5px;
+    }
+}
+
+@media (min-width: 1024px) and (max-width: 1200px) {
+    .container {
+        padding: 15px;
+        margin-top: 60px;
+        margin-bottom: 60px;
+    }
+    
+    .solicitacoesContainer {
+        padding: 15px;
+        text-align: center;
+    }
+    
+    .table {
+        display: block;
+        width: 100%;
+    }
+    
+    .table tr {
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        padding: 10px;
+    }
+    
+    .table td {
+        padding: 10px;
+        text-align: center;
+        position: relative;
+        border: none;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .table td::before {
+        content: attr(data-label);
+        display: block;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+    
+    .table td:last-child {
+        border-bottom: none;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        width: 45%;
+        display: inline-block;
+        margin: 5px 2%;
+        padding: 8px 5px;
+    }
+}
+
+@media (min-width: 1921px) and (max-width: 2560px) {
+    .container {
+        max-width: 1800px;
+    }
+    
+    .table th, .table td {
+        padding: 16px;
+        font-size: 18px;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        padding: 12px 18px;
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 2561px) and (max-width: 3840px) {
+    .container {
+        max-width: 2200px;
+    }
+    
+    .table th, .table td {
+        padding: 20px;
+        font-size: 22px;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        padding: 16px 24px;
+        font-size: 20px;
+    }
+}
+
+@media (min-width: 3841px) and (max-width: 5120px) {
+    .container {
+        max-width: 3000px;
+    }
+    
+    .table th, .table td {
+        padding: 24px;
+        font-size: 26px;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        padding: 20px 30px;
+        font-size: 24px;
+    }
+}
+
+@media (min-width: 5121px) and (max-width: 7680px) {
+    .container {
+        max-width: 4000px;
+    }
+    
+    .table th, .table td {
+        padding: 28px;
+        font-size: 30px;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        padding: 24px 36px;
+        font-size: 28px;
+    }
+}
+
+@media (min-width: 7681px) {
+    .container {
+        max-width: 5000px;
+    }
+    
+    .table th, .table td {
+        padding: 32px;
+        font-size: 34px;
+    }
+    
+    .btnAprovar, .btnRecusar {
+        padding: 28px 42px;
+        font-size: 32px;
+    }
 }
