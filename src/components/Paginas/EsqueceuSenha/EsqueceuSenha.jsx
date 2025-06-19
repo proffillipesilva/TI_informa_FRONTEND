@@ -16,7 +16,7 @@ const EsqueceuSenha = () => {
     setErro('');
     try {
       const resp = await fetch(
-        `http://localhost:8080/auth/recuperar-senha/pergunta?email=${encodeURIComponent(email)}`
+        `http://localhost:5000/auth/recuperar-senha/pergunta?email=${encodeURIComponent(email)}`
       );
       if (resp.ok) {
         const pergunta = await resp.text();
@@ -41,7 +41,7 @@ const EsqueceuSenha = () => {
     setErro('');
     try {
       const resp = await fetch(
-        'http://localhost:8080/auth/recuperar-senha/verificar-resposta',
+        'http://localhost:5000/auth/recuperar-senha/verificar-resposta',
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
