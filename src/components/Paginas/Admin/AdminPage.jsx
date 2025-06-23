@@ -8,6 +8,9 @@ const AdminPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [solicitacoes, setSolicitacoes] = useState([]);
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+  const [modalType, setModalType] = useState(''); // 'success' or 'error'
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -22,7 +25,7 @@ const AdminPage = () => {
         const meResponse = await axios.get('/auth/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        
+
         if (!meResponse.data.isAdmin) {
           setError('Você não tem permissão para acessar esta página.');
           setLoading(false);
@@ -47,6 +50,18 @@ const AdminPage = () => {
     carregarDados();
   }, [navigate]);
 
+  const showNotificationModal = (message, type) => {
+    setModalMessage(message);
+    setModalType(type);
+    setShowModal(true);
+    // Optionally close modal automatically after a few seconds
+    setTimeout(() => {
+      setShowModal(false);
+      setModalMessage('');
+      setModalType('');
+    }, 3000);
+  };
+
   const handleAprovar = async (id) => {
     try {
       const token = localStorage.getItem('token');
@@ -54,22 +69,22 @@ const AdminPage = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSolicitacoes(solicitacoes.filter(s => s.id !== id));
-      alert('Solicitação aprovada com sucesso!');
+      showNotificationModal('Solicitação aprovada com sucesso!', 'success');
     } catch {
-      alert('Erro ao aprovar solicitação');
+      showNotificationModal('Erro ao aprovar solicitação.', 'error');
     }
   };
 
-  const handleRecusar = async (id) => { //
+  const handleRecusar = async (id) => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`/usuario/reprovar-criador/${id}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setSolicitacoes(solicitacoes.filter(s => s.id !== id));
-      alert('Solicitação recusada com sucesso!');
+      showNotificationModal('Solicitação recusada com sucesso!', 'success');
     } catch {
-      alert('Erro ao recusar solicitação');
+      showNotificationModal('Erro ao recusar solicitação.', 'error');
     }
   };
 
@@ -108,17 +123,17 @@ const AdminPage = () => {
                       <td>{solicitacao.cpf}</td>
                       <td>{solicitacao.formacao}</td>
                       <td>
-                        <button 
+                        <button
                           onClick={() => handleAprovar(solicitacao.id)}
                           className={styles.btnAprovar}
                         >
                           Aprovar
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleRecusar(solicitacao.id)}
                           className={styles.btnRecusar}
                         >
-                          Recusar 
+                          Recusar
                         </button>
                       </td>
                     </tr>
@@ -129,6 +144,17 @@ const AdminPage = () => {
           </div>
         )}
       </div>
+
+      {showModal && (
+        <div className={styles.modalOverlay}>
+          <div className={`${styles.modalContent} ${styles[modalType]}`}>
+            <p>{modalMessage}</p>
+            <button onClick={() => setShowModal(false)} className={styles.modalCloseButton}>
+              &times;
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 };
