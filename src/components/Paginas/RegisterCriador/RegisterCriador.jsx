@@ -22,7 +22,27 @@ const RegisterCriador = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const navigate = useNavigate();
+
+  const SuccessModal = ({ show, onClose }) => {
+    if (!show) return null;
+
+    return (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <h3>Solicitação Enviada!</h3>
+          <p>Aguarde a aprovação do administrador.</p>
+          <button 
+            onClick={onClose}
+            className={styles.modalButton}
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -99,8 +119,7 @@ const RegisterCriador = () => {
       });
 
       if (response.status === 200) {
-        alert('Solicitação enviada com sucesso! Aguarde a aprovação do administrador.');
-        navigate('/perfil');
+        setShowSuccessModal(true);
       }
     } catch (error) {
       if (error.response) {
@@ -130,6 +149,11 @@ const RegisterCriador = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleModalClose = () => {
+    setShowSuccessModal(false);
+    navigate('/perfil');
   };
 
   return (
@@ -207,6 +231,11 @@ const RegisterCriador = () => {
           </div>
         </div>
       </div>
+
+      <SuccessModal 
+        show={showSuccessModal}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };

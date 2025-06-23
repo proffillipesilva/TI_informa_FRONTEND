@@ -370,7 +370,6 @@ const Perfil = () => {
       
       setPlaylists([res.data, ...playlists]);
       setNovaPlaylistNome('');
-      alert('Playlist criada com sucesso!');
     } catch (error) {
       alert('Erro ao criar playlist: ' + (error.response?.data?.message || 'Tente novamente mais tarde'));
     } finally {
@@ -448,7 +447,7 @@ const Perfil = () => {
           setVideoSuccessMessage('Vídeo excluído com sucesso!');
           setShowVideoSuccessModal(true);
         } else {
-          alert('Erro ao excluir vídeo: ' + (error.response?.data?.error || error.message || 'Tente novamente mais tarde'));
+          console.error('Erro ao excluir vídeo:', error);
         }
       } catch (err) {
         console.error('Erro ao verificar vídeos:', err);
@@ -487,7 +486,6 @@ const Perfil = () => {
       setShowPlaylistSuccessModal(true);
     } catch (error) {
       console.error('Erro ao excluir playlist:', error);
-      alert('Erro ao excluir playlist: ' + (error.response?.data?.message || 'Tente novamente mais tarde'));
     } finally {
       setShowConfirmPlaylistModal(false);
       setPlaylistToDelete(null);
@@ -796,7 +794,6 @@ const Perfil = () => {
       <Layout />
       <div className={styles.container}>
         <div className={styles.cartaoPerfil}>
-          {/* Botões no canto superior direito */}
           <div className={styles.botoesSuperiores}>
             {isEditing ? (
               <>
@@ -881,7 +878,6 @@ const Perfil = () => {
             )}
           </div>
   
-          {/* Botões adicionais (registro, admin, etc.) */}
           <div className={styles.botoesAdicionais}>
             {!isCriador && !isAdmin && (
               <button
@@ -902,7 +898,6 @@ const Perfil = () => {
           </div>
         </div>
   
-        {/* Seções de conteúdo */}
         <div className={styles.contentSections}>
           {secoesFiltradas.map(secao => (
             <div key={secao.id} className={styles.section}>
@@ -924,7 +919,6 @@ const Perfil = () => {
           ))}
         </div>
   
-        {/* Botão Sair */}
         <button className={styles.botaoSair} onClick={aoClicarSair}>
           Sair da conta
         </button>

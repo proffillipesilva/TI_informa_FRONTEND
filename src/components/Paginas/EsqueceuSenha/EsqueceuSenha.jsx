@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './EsqueceuSenha.module.css';
 import Layout from '../../Layout/Layout';
+import axios from '../../../api/axios-config';
 
 const EsqueceuSenha = () => {
   const [email, setEmail] = useState('');
@@ -9,30 +10,25 @@ const EsqueceuSenha = () => {
   const [perguntaSeguranca, setPerguntaSeguranca] = useState('');
   const [respostaSeguranca, setRespostaSeguranca] = useState('');
   const [erro, setErro] = useState('');
-  const navegarPara = useNavigate();
+  const navigate = useNavigate();
 
   const buscarPerguntaSeguranca = async (e) => {
     e.preventDefault();
     setErro('');
     try {
-      const resp = await fetch(
-        `http://localhost:5000/auth/recuperar-senha/pergunta?email=${encodeURIComponent(email)}`
-      );
-      if (resp.ok) {
-        const pergunta = await resp.text();
-        if (pergunta) {
-          setPerguntaSeguranca(pergunta);
-          setEtapa(2);
-        } else {
-          setErro('Pergunta de segurança não configurada para este e-mail.');
-        }
+      const response = await axios.get('/auth/recuperar-senha/pergunta', {
+        params: { email }
+      });
+      
+      if (response.data) {
+        setPerguntaSeguranca(response.data);
+        setEtapa(2);
       } else {
-        const errorText = await resp.text();
-        setErro(errorText || 'E-mail não encontrado ou erro desconhecido.');
+        setErro('Pergunta de segurança não configurada para este e-mail.');
       }
-    } catch (fetchError) {
-      console.error('Erro na requisição de pergunta de segurança:', fetchError);
-      setErro('Erro ao buscar pergunta de segurança. Verifique sua conexão.');
+    } catch (error) {
+      console.error('Erro na requisição de pergunta de segurança:', error);
+      setErro(error.response?.data || 'E-mail não encontrado ou erro desconhecido.');
     }
   };
 
@@ -40,24 +36,15 @@ const EsqueceuSenha = () => {
     e.preventDefault();
     setErro('');
     try {
-      const resp = await fetch(
-        'http://localhost:5000/auth/recuperar-senha/verificar-resposta',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, resposta: respostaSeguranca }),
-        }
-      );
-      if (resp.ok) {
-        alert('Resposta correta! Redirecionando para redefinir senha.');
-        navegarPara('/RedefinirSenha', { state: { email } });
-      } else {
-        const errorText = await resp.text(); 
-        setErro(errorText || 'Resposta incorreta. Tente novamente.');
-      }
-    } catch (fetchError) {
-      console.error('Erro na requisição de verificação de resposta:', fetchError);
-      setErro('Erro ao verificar resposta. Verifique sua conexão.');
+      await axios.post('/auth/recuperar-senha/verificar-resposta', {
+        email,
+        resposta: respostaSeguranca
+      });
+      
+      navigate('/RedefinirSenha', { state: { email } });
+    } catch (error) {
+      console.error('Erro na verificação de resposta:', error);
+      setErro(error.response?.data || 'Resposta incorreta. Tente novamente.');
     }
   };
 
@@ -118,7 +105,7 @@ const EsqueceuSenha = () => {
             <span className={styles.registerText}>
               Lembrou sua senha?{' '}
               <button
-                onClick={() => navegarPara('/login')}
+                onClick={() => navigate('/login')}
                 className={styles.registerLink}
               >
                 Fazer Login

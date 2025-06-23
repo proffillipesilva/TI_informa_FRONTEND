@@ -2,46 +2,59 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Interesses.module.css';
 import Layout from '../../Layout/Layout';
+import axios from '../../../api/axios-config';
 
 const Interesses = () => {
-  const navegarPara = useNavigate();
+  const navigate = useNavigate();
   const [interessesSelecionados, setInteressesSelecionados] = useState([]);
   const [mensagemErro, setMensagemErro] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Efeito para buscar os interesses do usuário ao carregar o componente
+  const SuccessModal = ({ show, onClose }) => {
+    if (!show) return null;
+
+    return (
+      <div className={styles.modalOverlay}>
+        <div className={styles.modalContent}>
+          <h3>Interesses Atualizados!</h3>
+          <p>Seus interesses foram salvos com sucesso.</p>
+          <button 
+            onClick={onClose}
+            className={styles.modalButton}
+          >
+            OK
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      navegarPara('/login');
+      navigate('/login');
       return;
     }
 
     const buscarInteressesDoUsuario = async () => {
       try {
-        const response = await fetch('http://localhost:8080/auth/me', { // Endpoint para buscar dados do usuário, incluindo interesses
-          method: 'GET',
+        const response = await axios.get('/auth/me', { 
           headers: {
-            'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
           },
         });
 
-        if (response.ok) {
-          const userData = await response.json();
-          // Assumindo que a resposta do backend tem um campo 'interesses' que é uma string separada por vírgulas
-          if (userData.interesses) {
-            setInteressesSelecionados(userData.interesses.split(',').map(item => item.trim()));
-          }
-        } else {
-          console.error('Erro ao buscar interesses do usuário:', response.statusText);
+        if (response.data.interesses) {
+          setInteressesSelecionados(response.data.interesses.split(',').map(item => item.trim()));
         }
       } catch (error) {
-        console.error('Erro de conexão ao buscar interesses:', error);
+        console.error('Erro ao buscar interesses do usuário:', error);
       }
     };
 
     buscarInteressesDoUsuario();
-  }, [navegarPara]);
+  }, [navigate]);
 
   const selecionarInteresse = (interesse) => {
     if (interessesSelecionados.includes(interesse)) {
@@ -54,7 +67,7 @@ const Interesses = () => {
 
   const estaSelecionado = (interesse) => interessesSelecionados.includes(interesse);
 
-  const irParaHome = async () => { // O nome da função continua 'irParaHome', mas vai para o perfil
+  const salvarInteresses = async () => { 
     if (interessesSelecionados.length === 0) {
       setMensagemErro('Por favor, selecione ao menos um interesse para continuar.');
       return;
@@ -62,33 +75,33 @@ const Interesses = () => {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      navegarPara('/login');
+      navigate('/login');
       return;
     }
 
+    setLoading(true);
+
     try {
-      const response = await fetch('http://localhost:8080/auth/usuario/interesses', {
-        method: 'PUT',
+      await axios.put('/auth/usuario/interesses', {
+        interesses: interessesSelecionados.join(','),
+      }, {
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          interesses: interessesSelecionados.join(','),
-        }),
       });
 
-      if (response.ok) {
-        // *** MUDANÇA AQUI: REDIRECIONA PARA /perfil ***
-        navegarPara('/perfil');
-      } else {
-        const errorData = await response.json();
-        alert(errorData.message || 'Erro ao salvar interesses');
-      }
+      setShowSuccessModal(true);
     } catch (error) {
-      console.error('Erro:', error);
-      alert('Erro de conexão');
+      console.error('Erro ao salvar interesses:', error);
+      setMensagemErro(error.response?.data?.message || 'Erro ao salvar interesses');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleModalClose = () => {
+    setShowSuccessModal(false);
+    navigate('/perfil');
   };
 
   return (
@@ -180,13 +193,22 @@ const Interesses = () => {
               </div>
             </div>
             {mensagemErro && <p className={styles.mensagemErro}>{mensagemErro}</p>}
-            <button className={styles.botaoPronto} onClick={irParaHome}>
-              Pronto
+            <button 
+              className={styles.botaoPronto} 
+              onClick={salvarInteresses}
+              disabled={loading}
+            >
+              {loading ? 'Salvando...' : 'Pronto'}
             </button>
           </div>
         </div>
       </div>
       <div className={`${styles.barra} ${styles.inferior}`}></div>
+
+      <SuccessModal 
+        show={showSuccessModal}
+        onClose={handleModalClose}
+      />
     </div>
   );
 };
