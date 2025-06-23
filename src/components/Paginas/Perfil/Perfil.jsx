@@ -166,9 +166,9 @@ const Perfil = () => {
       navigate('/login');
       return;
     }
-
+  
     const headers = { Authorization: `Bearer ${token}` };
-
+  
     const carregarDados = async () => {
       try {
         const response = await axios.get('/auth/me', { headers });
@@ -179,7 +179,14 @@ const Perfil = () => {
         setInteressesUsuario(response.data.interesses);
         setDescricaoUsuario(response.data.descricao || '');
         setOriginalDescricaoUsuario(response.data.descricao || '');
-        setFotoUrl(response.data.fotoUrl || '');
+  
+        try {
+          const fotoResponse = await axios.get('/file/foto-usuario', { headers });
+          setFotoUrl(fotoResponse.data?.fotoUrl || '');
+        } catch (fotoError) {
+          console.error('Erro ao buscar foto do usuário:', fotoError);
+          setFotoUrl('');
+        }
 
         if (response.data.isCriador && response.data.id_criador) {
           try {
@@ -247,41 +254,47 @@ const Perfil = () => {
       try {
         const token = localStorage.getItem('token');
         const headers = { Authorization: `Bearer ${token}` };
+        setLoading(true);
   
-        let newFotoUrl = fotoUrl;
+        let updatedFotoUrl = fotoUrl;
+  
         if (fotoFile) {
           const formData = new FormData();
           formData.append('file', fotoFile);
   
-          const response = await axios.post('/file/foto-upload', formData, {
+          const uploadResponse = await axios.post('/file/foto-upload', formData, {
             headers: {
               ...headers,
               'Content-Type': 'multipart/form-data'
             }
           });
   
-          newFotoUrl = response.data.url;
+          updatedFotoUrl = `${uploadResponse.data.fotoUrl || uploadResponse.data.url}?${Date.now()}`;
         }
   
         await axios.put('/usuario/descricao', 
           { 
             descricao: descricaoUsuario,
-            fotoUrl: newFotoUrl 
+            fotoUrl: updatedFotoUrl 
           }, 
           { headers }
         );
   
-        setFotoUrl(newFotoUrl);
-        setFotoFile(null);
+        setFotoUrl(updatedFotoUrl);
         setFotoPreviewUrl('');
+        setFotoFile(null);
+        
+        const userResponse = await axios.get('/auth/me', { headers });
+        setFotoUrl(userResponse.data.fotoUrl || updatedFotoUrl);
   
         setVideoSuccessMessage('Perfil atualizado com sucesso!');
         setShowVideoSuccessModal(true);
-        setOriginalDescricaoUsuario(descricaoUsuario);
         setIsEditing(false);
       } catch (error) {
         console.error('Erro ao atualizar perfil:', error);
         alert('Erro ao atualizar perfil: ' + (error.response?.data || 'Tente novamente.'));
+      } finally {
+        setLoading(false);
       }
     } else {
       setIsEditing(true);
@@ -805,14 +818,21 @@ const Perfil = () => {
             <>
               <div className={styles.fotoUploadContainer}>
                 <label htmlFor="fotoUpload" className={styles.fotoUploadLabel}>
-                  <span className={styles.uploadIcon}>📷</span>
-                  <span>Alterar Foto</span>
+                  {loading ? (
+                    <div className={styles.loadingSpinner}></div>
+                  ) : (
+                    <>
+                      <span className={styles.uploadIcon}>📷</span>
+                      <span>Alterar Foto</span>
+                    </>
+                  )}
                   <input 
                     id="fotoUpload"
                     type="file" 
                     accept="image/jpeg, image/png" 
                     onChange={aoSelecionarFoto} 
                     className={styles.fotoUploadInput}
+                    disabled={loading}
                   />
                 </label>
                 <p className={styles.fileName}>
@@ -839,7 +859,6 @@ const Perfil = () => {
             />
           )}
   
-          {/* Informações do perfil */}
           <div className={styles.infoPerfil}>
             <h2 className={styles.nomeUsuario}>{nomeCompleto}</h2>
             <p className={styles.emailUsuario}>{emailUsuario}</p>
