@@ -156,9 +156,7 @@ const Perfil = () => {
   const [totalInscritos, setTotalInscritos] = useState(0);
   const [fotoFile, setFotoFile] = useState(null);
   const [fotoPreviewUrl, setFotoPreviewUrl] = useState('');
-
-
-
+  const [nomeCriador, setNomeCriador] = useState('');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -187,17 +185,19 @@ const Perfil = () => {
           console.error('Erro ao buscar foto do usuário:', fotoError);
           setFotoUrl('');
         }
-
+  
         if (response.data.isCriador && response.data.id_criador) {
           try {
-            const inscritosResponse = await axios.get(`/criador/${response.data.id_criador}/inscritos`, { headers });
-            setTotalInscritos(inscritosResponse.data || 0);
+            const criadorResponse = await axios.get(`/criador/${response.data.id_criador}`, { headers });
+            setNomeCriador(criadorResponse.data.nome); 
+            setTotalInscritos(criadorResponse.data.totalInscritos || 0);
           } catch (error) {
-            console.error('Erro ao buscar inscritos:', error);
+            console.error('Erro ao buscar dados do criador:', error);
+            setNomeCriador(response.data.nome);
             setTotalInscritos(0);
           }
         }
-
+  
         if (response.data.isCriador) {
           setSecoesAtivas(['videos', 'playlists']);
           try {
@@ -224,7 +224,7 @@ const Perfil = () => {
       } finally {
         setLoading(false);
       }
-
+  
       try {
         setLoadingPlaylists(true);
         const res = await axios.get('/playlists/minhas-playlists', { headers });
@@ -235,7 +235,7 @@ const Perfil = () => {
         setLoadingPlaylists(false);
       }
     };
-
+  
     carregarDados();
   }, [navigate]);
 
@@ -857,7 +857,9 @@ const Perfil = () => {
           )}
   
           <div className={styles.infoPerfil}>
-            <h2 className={styles.nomeUsuario}>{nomeCompleto}</h2>
+            <h2 className={styles.nomeUsuario}>
+              {isCriador && nomeCriador ? nomeCriador : nomeCompleto}
+            </h2>
             <p className={styles.emailUsuario}>{emailUsuario}</p>
             <textarea
               className={styles.descricaoUsuario}

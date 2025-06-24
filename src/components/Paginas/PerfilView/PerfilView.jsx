@@ -10,7 +10,7 @@ const PerfilView = () => {
   const [perfil, setPerfil] = useState({
     nome: '',
     descricao: '',
-    fotoUrl: 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg',
+    fotoUrl: '',
     formacao: '',
     isCriador: false,
     usuarioId: null,
@@ -21,6 +21,8 @@ const PerfilView = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [secoesAtivas, setSecoesAtivas] = useState(['videos']);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [subscriptionMessage, setSubscriptionMessage] = useState('');
   const navigate = useNavigate();
 
   const getThumbnailSource = (video) => {
@@ -36,26 +38,49 @@ const PerfilView = () => {
         setLoading(true);
         setError('');
         
-        const perfilResponse = await axios.get(`/auth/criador/${criadorId}`);
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const perfilResponse = await axios.get(`/auth/criador/${criadorId}`, { headers });
         const perfilData = perfilResponse.data;
         
+        let fotoUrl = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
+        try {
+          const fotoResponse = await axios.get(`/file/foto-usuario?usuarioId=${perfilData.usuarioId}`, { headers });
+          if (fotoResponse.data?.fotoUrl) {
+            fotoUrl = fotoResponse.data.fotoUrl;
+          }
+        } catch (fotoError) {
+          console.error('Erro ao buscar foto do usuário:', fotoError);
+        }
+
         setPerfil({
           nome: perfilData.nome,
           descricao: perfilData.descricao || 'Este criador não possui uma descrição.',
-          fotoUrl: perfilData.fotoUrl || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg',
+          fotoUrl: fotoUrl,
           formacao: perfilData.formacao,
           isCriador: true,
           usuarioId: perfilData.usuarioId,
           totalInscritos: perfilData.totalInscritos || 0 
         });
 
+        if (token) {
+          try {
+            const subResponse = await axios.get(`/usuario/check/${criadorId}`, { headers });
+            setIsSubscribed(subResponse.data?.isSubscribed || false);
+          } catch (subError) {
+            console.error('Erro ao verificar inscrição:', subError);
+            setIsSubscribed(false);
+          }
+        }
+
         const requests = [
-          axios.get(`/file/criador/${criadorId}/videos`)
+          axios.get(`/file/criador/${criadorId}/videos`, { headers })
         ];
 
         if (perfilData.usuarioId) {
           requests.push(
-            axios.get(`/playlists/usuario/${perfilData.usuarioId}`)
+            axios.get(`/playlists/usuario/${perfilData.usuarioId}`, { headers })
           );
         }
 
@@ -81,6 +106,63 @@ const PerfilView = () => {
 
     carregarDados();
   }, [criadorId]);
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      const token = localStorage.getItem('token');
+      if (!token || !criadorId) return;
+      
+      try {
+        const response = await axios.get(`/usuario/check/${criadorId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsSubscribed(response.data?.isSubscribed || false);
+      } catch (error) {
+        console.error('Erro ao verificar inscrição:', error);
+        setIsSubscribed(false);
+      }
+    };
+
+    checkSubscription();
+  }, [criadorId]);
+
+  const handleSubscribe = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        navigate('/login');
+        return;
+      }
+
+      const userId = localStorage.getItem('userId');
+      if (!userId) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      setSubscriptionMessage(isSubscribed ? 'Removendo inscrição...' : 'Realizando inscrição...');
+
+      const response = await axios.post('/criador/inscricao', {
+        userId: userId,
+        criadorId: criadorId,
+        inscrever: !isSubscribed
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      setIsSubscribed(!isSubscribed);
+      setPerfil(prev => ({
+        ...prev,
+        totalInscritos: response.data.totalInscritos
+      }));
+
+      setSubscriptionMessage(isSubscribed ? 'Inscrição removida com sucesso!' : 'Inscrito com sucesso!');
+    } catch (err) {
+      console.error('Erro na inscrição:', err);
+      setSubscriptionMessage(err.response?.data?.message || 'Erro ao processar inscrição. Tente novamente.');
+    } finally {
+      setTimeout(() => setSubscriptionMessage(''), 3000);
+    }
+  };
 
   const formatSubscribers = (count) => {
     if (count >= 1000000) {
@@ -210,7 +292,7 @@ const PerfilView = () => {
       <Layout />
       <div className={styles.profileContainer}>
         <div className={styles.profileHeader}>
-        <img
+          <img
             src={perfil.fotoUrl}
             alt={`Foto de ${perfil.nome}`}
             className={styles.profileImage}
@@ -220,9 +302,24 @@ const PerfilView = () => {
           />
           <div className={styles.profileInfo}>
             <h1 className={styles.profileName}>{perfil.nome}</h1>
-            <div className={styles.subscriberCount}>
-              {formatSubscribers(perfil.totalInscritos)} inscritos
+            <div className={styles.subscriberContainer}>
+              <div className={styles.subscriberCount}>
+                {formatSubscribers(perfil.totalInscritos)} inscritos
+              </div>
+              
+              {localStorage.getItem('token') && (
+                <button
+                  className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
+                  onClick={handleSubscribe}
+                >
+                  {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
+                </button>
+              )}
             </div>
+            
+            {subscriptionMessage && (
+              <p className={styles.subscriptionMessage}>{subscriptionMessage}</p>
+            )}
             
             <p className={styles.profileDescription}>{perfil.descricao}</p>
             {perfil.formacao && (
@@ -231,7 +328,6 @@ const PerfilView = () => {
               </p>
             )}
             <div className={styles.profileBadge}>Criador de Conteúdo</div>
-            
           </div>
         </div>
 

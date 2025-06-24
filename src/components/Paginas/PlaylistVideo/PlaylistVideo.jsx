@@ -28,8 +28,7 @@ const PlaylistVideo = () => {
   const [recommendedVideos, setRecommendedVideos] = useState([]);
   const [recommendedError, setRecommendedError] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [creatorProfilePhoto, setCreatorProfilePhoto] = useState('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
-  const [userRating, setUserRating] = useState(0);
+  const [creatorProfilePhoto, setCreatorProfilePhoto] = useState('');  const [userRating, setUserRating] = useState(0);
   const [comment, setComment] = useState('');
   const [ratingMessage, setRatingMessage] = useState('');
   const [hasRated, setHasRated] = useState(false);
@@ -108,6 +107,31 @@ const PlaylistVideo = () => {
       document.documentElement.classList.remove(styles.htmlVideoPage);
     };
   }, []);
+
+  useEffect(() => {
+    const fetchTotalInscritos = async () => {
+      if (!videoData?.criador?.id) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
+        const response = await axios.get(`/criador/${videoData.criador.id}/inscritos`, { headers });
+        
+        setVideoData(prev => ({
+          ...prev,
+          criador: {
+            ...prev.criador,
+            totalInscritos: response.data
+          }
+        }));
+      } catch (error) {
+        console.error('Erro ao buscar total de inscritos:', error);
+      }
+    };
+  
+    fetchTotalInscritos();
+  }, [videoData?.criador?.id]);
   
 
   const formatDate = useCallback((dateString) => {
@@ -294,10 +318,18 @@ const PlaylistVideo = () => {
           setVideoData(currentVideoData);
         }
 
-        if (currentVideoData?.criador?.fotoPerfil) {
-          setCreatorProfilePhoto(currentVideoData.criador.fotoPerfil);
-        } else {
-          setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+        if (currentVideoData?.criador?.usuarioId) {
+          try {
+            const fotoResponse = await axios.get(`/file/foto-usuario?usuarioId=${currentVideoData.criador.usuarioId}`);
+            if (fotoResponse.data?.fotoUrl) {
+              setCreatorProfilePhoto(fotoResponse.data.fotoUrl);
+            } else {
+              setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+            }
+          } catch (fotoError) {
+            console.error('Erro ao buscar foto do criador:', fotoError);
+            setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+          }
         }
 
         if (token && currentVideoId && currentUserId) {
@@ -357,7 +389,9 @@ const PlaylistVideo = () => {
 
         if (token && currentVideoData.criador?.id) {
           try {
-            const subResponse = await axios.get(`/subscriptions/check/${currentVideoData.criador.id}`, { headers });
+            const subResponse = await axios.get(`/usuario/check/${currentVideoData.criador.id}`, { 
+              headers: { Authorization: `Bearer ${token}` } 
+            });
             setIsSubscribed(subResponse.data?.isSubscribed || false);
           } catch (subError) {
             console.error('Erro ao verificar inscrição:', subError);
@@ -387,13 +421,13 @@ const PlaylistVideo = () => {
         throw new Error('Criador do vídeo não identificado');
       }
   
-      const request = {
+      setRatingMessage(isSubscribed ? 'Removendo inscrição...' : 'Realizando inscrição...');
+  
+      const response = await axios.post('/criador/inscricao', {
         userId: userId,
         criadorId: videoData.criador.id,
         inscrever: !isSubscribed
-      };
-  
-      const response = await axios.post('/criador/inscricao', request, {
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
   
@@ -414,6 +448,25 @@ const PlaylistVideo = () => {
       setTimeout(() => setRatingMessage(''), 3000);
     }
   };
+
+  useEffect(() => {
+    const checkSubscription = async () => {
+      if (!videoData?.criador?.id || !currentUserId) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get(`/usuario/check/${videoData.criador.id}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setIsSubscribed(response.data?.isSubscribed || false);
+      } catch (error) {
+        console.error('Erro ao verificar inscrição:', error);
+        setIsSubscribed(false);
+      }
+    };
+  
+    checkSubscription();
+  }, [videoData?.criador?.id, currentUserId]);
   
   useEffect(() => {
     const fetchTotalInscritos = async () => {
@@ -748,7 +801,7 @@ const handleDeleteEvaluation = async () => {
             <div className={styles.creatorInfo}>
             <div className={styles.creatorLeft}>
               <img
-                src={creatorProfilePhoto}
+                src={creatorProfilePhoto || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg'}
                 alt={videoData.criador?.nome || 'Criador'}
                 className={styles.creatorAvatar}
                 onClick={() => navigate(`/perfil/${videoData.criador?.id}`)}

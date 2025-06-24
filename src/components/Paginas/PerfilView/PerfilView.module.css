@@ -304,6 +304,49 @@
   transform: translateY(-18px);
 }
 
+.subscriberCount {
+  font-size: 15px;
+  color: #666;
+  background-color: #f0f0f0;
+  padding: 4px 10px;
+  border-radius: 12px;
+}
+
+.subscribeButton {
+  padding: 6px 12px;
+  background-color: #cc0000;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background-color 0.3s;
+  height: 30px;
+  white-space: nowrap;
+  transform: translateY(-25%);
+
+}
+
+.subscribeButton:hover {
+  background-color: #cc0000;
+}
+
+.subscribeButton.subscribed {
+  background-color: #6c757d;
+}
+
+.subscribeButton.subscribed:hover {
+  background-color: #5a6268;
+}
+
+.subscriptionMessage {
+  margin-top: 5px;
+  font-size: 14px;
+  color: #28a745;
+  margin-bottom: 10px;
+}
+
 @media (max-width: 425px) {
   .profileContainer {
     margin-top: 80px;
@@ -447,6 +490,7 @@
   }
   
   .profileDescription {
+    color: #555;
     font-size: 18px;
   }
   

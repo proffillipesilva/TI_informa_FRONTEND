@@ -14,7 +14,10 @@ const Home = () => {
   const [loadingPopular, setLoadingPopular] = useState(true);
   const [errorRecommended, setErrorRecommended] = useState(null);
   const [errorPopular, setErrorPopular] = useState(null);
-  const [filter, setFilter] = useState('default'); 
+  const [filter, setFilter] = useState('default');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   const [recommendedStartIndex, setRecommendedStartIndex] = useState(0);
   const [popularStartIndex, setPopularStartIndex] = useState(0);
@@ -71,9 +74,41 @@ const Home = () => {
     }
   };
 
+  const searchVideos = async (term) => {
+    if (!term.trim()) {
+      setIsSearching(false);
+      setSearchResults([]);
+      return;
+    }
+
+    try {
+      setIsSearching(true);
+      const response = await api.get(`/file/buscar?termo=${encodeURIComponent(term)}`);
+      setSearchResults(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar vídeos:", error);
+      setSearchResults([]);
+    }
+  };
+
   useEffect(() => {
-    fetchVideos();
-  }, [navigate, filter]);
+    const timer = setTimeout(() => {
+      if (searchTerm) {
+        searchVideos(searchTerm);
+      } else {
+        setIsSearching(false);
+        setSearchResults([]);
+      }
+    }, 500); 
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    if (!isSearching) {
+      fetchVideos();
+    }
+  }, [navigate, filter, isSearching]);
 
   const getThumbnailSource = (video) => {
     const s3BaseUrl = 'https://tiinformafiec.s3.us-east-1.amazonaws.com/';
@@ -121,6 +156,10 @@ const Home = () => {
     setFilter(e.target.value);
     setRecommendedStartIndex(0);
     setPopularStartIndex(0);
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   const getSectionTitle = () => {
@@ -222,11 +261,13 @@ const Home = () => {
             type="text"
             placeholder="Pesquisar..."
             className={styles.barraPesquisa}
+            value={searchTerm}
+            onChange={handleSearchChange}
           />
           <HiOutlineSearch className={styles.iconePesquisa} />
         </div>
         <div className={styles.filtros}>
-        <span className={styles.tituloFiltros}>Filtros</span>
+          <span className={styles.tituloFiltros}>Filtros</span>
           <select 
             className={styles.selectCategorias}
             value={filter}
@@ -239,19 +280,30 @@ const Home = () => {
         </div>
       </div>
 
-      <div className={styles.secao}>
-        <h2 className={styles.tituloSecao}>
-          {getSectionTitle()}
-        </h2>
-        {renderVideoCards(recommendedVideos, loadingRecommended, errorRecommended, recommendedStartIndex, 'recommended')}
-      </div>
+      {isSearching ? (
+        <div className={styles.secao}>
+          <h2 className={styles.tituloSecao}>
+            Resultados da busca: "{searchTerm}"
+          </h2>
+          {renderVideoCards(searchResults, false, null, 0, 'search')}
+        </div>
+      ) : (
+        <>
+          <div className={styles.secao}>
+            <h2 className={styles.tituloSecao}>
+              {getSectionTitle()}
+            </h2>
+            {renderVideoCards(recommendedVideos, loadingRecommended, errorRecommended, recommendedStartIndex, 'recommended')}
+          </div>
 
-      <div className={styles.secao}>
-        <h2 className={styles.tituloSecao}>
-          {filter === 'top-rated' ? 'Bem avaliados' : filter === 'recent' ? 'Recentes' : 'Populares'}
-        </h2>
-        {renderVideoCards(popularVideos, loadingPopular, errorPopular, popularStartIndex, 'popular')}
-      </div>
+          <div className={styles.secao}>
+            <h2 className={styles.tituloSecao}>
+              {filter === 'top-rated' ? 'Bem avaliados' : filter === 'recent' ? 'Recentes' : 'Populares'}
+            </h2>
+            {renderVideoCards(popularVideos, loadingPopular, errorPopular, popularStartIndex, 'popular')}
+          </div>
+        </>
+      )}
     </div>
   );
 };

@@ -27,7 +27,7 @@ const VideoPage = () => {
   const [recommendedVideos, setRecommendedVideos] = useState([]);
   const [recommendedError, setRecommendedError] = useState('');
   const [isSubscribed, setIsSubscribed] = useState(false);
-  const [creatorProfilePhoto, setCreatorProfilePhoto] = useState('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+  const [creatorProfilePhoto, setCreatorProfilePhoto] = useState('');
   const [userRating, setUserRating] = useState(0);
   const [comment, setComment] = useState('');
   const [ratingMessage, setRatingMessage] = useState('');
@@ -230,10 +230,18 @@ const VideoPage = () => {
           setVideoData(currentVideoData);
         }
 
-        if (currentVideoData?.criador?.fotoPerfil) {
-          setCreatorProfilePhoto(currentVideoData.criador.fotoPerfil);
-        } else {
-          setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+        if (currentVideoData?.criador?.id) {
+          try {
+            const fotoResponse = await axios.get(`/file/foto-usuario?usuarioId=${currentVideoData.criador.usuarioId}`);
+            if (fotoResponse.data?.fotoUrl) {
+              setCreatorProfilePhoto(fotoResponse.data.fotoUrl);
+            } else {
+              setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+            }
+          } catch (fotoError) {
+            console.error('Erro ao buscar foto do criador:', fotoError);
+            setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+          }
         }
 
         if (token && videoId && currentUserId) {
@@ -294,7 +302,7 @@ const VideoPage = () => {
 
         if (token && currentVideoData.criador?.id) {
           try {
-            const subResponse = await axios.get(`/subscriptions/check/${currentVideoData.criador.id}`, { headers });
+            const subResponse = await axios.get(`/usuario/check/${currentVideoData.criador.id}`, { headers });
             setIsSubscribed(subResponse.data?.isSubscribed || false);
           } catch (subError) {
             console.error('Erro ao verificar inscrição:', subError);
@@ -308,50 +316,69 @@ const VideoPage = () => {
     fetchVideoData();
   }, [videoId, location.state, navigate, getVideoSource, currentUserId]);
 
-  const handleSubscribe = async () => {
+const handleSubscribe = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+      return;
+    }
+
+    const userId = getAuthenticatedUserId();
+    if (!userId) {
+      throw new Error('Usuário não autenticado');
+    }
+
+    if (!videoData?.criador?.id) {
+      throw new Error('Criador do vídeo não identificado');
+    }
+
+    setRatingMessage(isSubscribed ? 'Removendo inscrição...' : 'Realizando inscrição...');
+
+    const response = await axios.post('/criador/inscricao', {
+      userId: userId,
+      criadorId: videoData.criador.id,
+      inscrever: !isSubscribed
+    }, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    setIsSubscribed(!isSubscribed);
+    setVideoData(prev => ({
+      ...prev,
+      criador: {
+        ...prev.criador,
+        totalInscritos: response.data.totalInscritos
+      }
+    }));
+
+    setRatingMessage(isSubscribed ? 'Inscrição removida com sucesso!' : 'Inscrito com sucesso!');
+  } catch (err) {
+    console.error('Erro na inscrição:', err);
+    setRatingMessage(err.response?.data?.message || 'Erro ao processar inscrição. Tente novamente.');
+  } finally {
+    setTimeout(() => setRatingMessage(''), 3000);
+  }
+};
+
+useEffect(() => {
+  const checkSubscription = async () => {
+    if (!videoData?.criador?.id || !currentUserId) return;
+    
     try {
       const token = localStorage.getItem('token');
-      if (!token) {
-        navigate('/login');
-        return;
-      }
-  
-      const userId = getAuthenticatedUserId();
-      if (!userId) {
-        throw new Error('Usuário não autenticado');
-      }
-  
-      if (!videoData?.criador?.id) {
-        throw new Error('Criador do vídeo não identificado');
-      }
-  
-      const request = {
-        userId: userId,
-        criadorId: videoData.criador.id,
-        inscrever: !isSubscribed
-      };
-  
-      const response = await axios.post('/criador/inscricao', request, {
+      const response = await axios.get(`/usuario/check/${videoData.criador.id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-  
-      setIsSubscribed(!isSubscribed);
-      setVideoData(prev => ({
-        ...prev,
-        criador: {
-          ...prev.criador,
-          totalInscritos: response.data.totalInscritos
-        }
-      }));
-  
-      setRatingMessage(isSubscribed ? 'Inscrição removida com sucesso!' : 'Inscrito com sucesso!');
-    } catch (err) {
-      console.error('Erro na inscrição:', err);
-      setRatingMessage(err.response?.data?.message || 'Erro ao processar inscrição. Tente novamente.');
-    } finally {
-      setTimeout(() => setRatingMessage(''), 3000);
+      setIsSubscribed(response.data?.isSubscribed || false);
+    } catch (error) {
+      console.error('Erro ao verificar inscrição:', error);
+      setIsSubscribed(false);
     }
   };
+
+  checkSubscription();
+}, [videoData?.criador?.id, currentUserId]);
   
   useEffect(() => {
     const fetchTotalInscritos = async () => {
@@ -384,7 +411,7 @@ const VideoPage = () => {
       
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get(`/subscriptions/check/${videoData.criador.id}`, {
+        const response = await axios.get(`/usuario/check/${videoData.criador.id}`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setIsSubscribed(response.data?.isSubscribed || false);
@@ -687,7 +714,7 @@ const handleDeleteEvaluation = async () => {
             <div className={styles.creatorInfo}>
             <div className={styles.creatorLeft}>
               <img
-                src={creatorProfilePhoto}
+                src={creatorProfilePhoto || 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg'}
                 alt={videoData.criador?.nome || 'Criador'}
                 className={styles.creatorAvatar}
                 onClick={() => navigate(`/perfil/${videoData.criador?.id}`)}
@@ -706,12 +733,12 @@ const handleDeleteEvaluation = async () => {
                     </p>
                     {videoData.criador?.id && (
                       <button
-                        className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
-                        onClick={handleSubscribe}
-                        disabled={!videoData.criador.id}
-                      >
-                        {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
-                      </button>
+                      className={`${styles.subscribeButton} ${isSubscribed ? styles.subscribed : ''}`}
+                      onClick={handleSubscribe}
+                      disabled={!videoData.criador.id}
+                    >
+                      {isSubscribed ? 'Inscrito' : 'Inscrever-se'}
+                    </button>
                     )}
                   </div>
                 </div>
