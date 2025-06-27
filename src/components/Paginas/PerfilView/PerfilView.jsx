@@ -41,28 +41,29 @@ const PerfilView = () => {
         const token = localStorage.getItem('token');
         const headers = token ? { Authorization: `Bearer ${token}` } : {};
         
-        const perfilResponse = await axios.get(`/auth/criador/${criadorId}`, { headers });
+        const perfilResponse = await axios.get(`/criador/${criadorId}`, { headers });
         const perfilData = perfilResponse.data;
-        
-        let fotoUrl = 'https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg';
-        try {
-          const fotoResponse = await axios.get(`/file/foto-usuario?usuarioId=${perfilData.usuarioId}`, { headers });
-          if (fotoResponse.data?.fotoUrl) {
-            fotoUrl = fotoResponse.data.fotoUrl;
-          }
-        } catch (fotoError) {
-          console.error('Erro ao buscar foto do usuário:', fotoError);
-        }
-
+        const fotoUrl = perfilData.foto_url || perfilData.fotoUrl || 
+        `https://tiinformafiec.s3.amazonaws.com/user-photos/criador-${perfilData.id}.png`;
+  
         setPerfil({
           nome: perfilData.nome,
           descricao: perfilData.descricao || 'Este criador não possui uma descrição.',
           fotoUrl: fotoUrl,
           formacao: perfilData.formacao,
           isCriador: true,
-          usuarioId: perfilData.usuarioId,
-          totalInscritos: perfilData.totalInscritos || 0 
+          totalInscritos: perfilData.totalInscritos || 0,
+          usuarioId: perfilData.usuarioId
         });
+  
+        const img = new Image();
+        img.src = fotoUrl;
+        img.onerror = () => {
+          setPerfil(prev => ({
+            ...prev,
+            fotoUrl: 'https://placehold.co/200x200?text=Criador'
+          }));
+        };
 
         if (token) {
           try {
