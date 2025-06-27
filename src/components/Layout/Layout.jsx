@@ -6,7 +6,7 @@ import { FaBars, FaTimes } from 'react-icons/fa';
 import { HiAcademicCap, HiLogin, HiKey, HiCreditCard, HiAdjustments, HiUser, HiOutlineAcademicCap } from "react-icons/hi";
 
 const Menu = () => {
-  const [menuAberto, setMenuAberto] = useState(false);
+  const [menuAberto, setMenuAberto] = useState(false); // Initial state is false (closed)
   const [isLogged, setIsLogged] = useState(false);
   const navigate = useNavigate();
 
@@ -16,25 +16,24 @@ const Menu = () => {
   }, []);
 
   const toggleMenu = () => {
-    setMenuAberto(!menuAberto);
+    setMenuAberto(!menuAberto); // This correctly toggles the state
   };
 
   const navegarPara = (rota) => {
     navigate(rota);
-    setMenuAberto(false);
+    setMenuAberto(false); // Closes menu when navigating
   };
 
   return (
     <div>
       <div className={styles.cabecalho}>
-
         <button className={styles.botaoMenu} onClick={toggleMenu}>
-          {menuAberto ? <FaTimes /> : <FaBars />}
+          {menuAberto ? <FaTimes /> : <FaBars />} {/* Icon changes based on state */}
         </button>
         <span className={styles.tituloCabecalho}>T.I Informa</span>
         <img src={logo} alt="Logo" className={styles.logo} />
       </div>
-      <div className={`${styles.menuLateral} ${menuAberto ? styles.menuAberto : ''}`}>
+      <div className={`${styles.menuLateral} ${menuAberto ? styles.menuAberto : ''}`}> {/* This conditional class application is key */}
         <ul>
           {isLogged && (<li onClick={() => navegarPara('/home')}><HiAcademicCap /> Home</li>
           )}
