@@ -178,12 +178,19 @@ const Perfil = () => {
         setDescricaoUsuario(response.data.descricao || '');
         setOriginalDescricaoUsuario(response.data.descricao || '');
   
-        try {
-          const fotoResponse = await axios.get('/file/foto-usuario', { headers });
-          setFotoUrl(fotoResponse.data?.fotoUrl || '');
-        } catch (fotoError) {
-          console.error('Erro ao buscar foto do usuário:', fotoError);
-          setFotoUrl('');
+        if (response.data.fotoUrl) {
+          setFotoUrl(response.data.fotoUrl);
+        } else {
+          try {
+            const fotoResponse = await axios.get('/file/foto-usuario', { 
+              headers,
+              params: { t: Date.now() }
+            });
+            setFotoUrl(fotoResponse.data?.fotoUrl || fotoResponse.data || '');
+          } catch (fotoError) {
+            console.error('Erro ao buscar foto do usuário:', fotoError);
+            setFotoUrl('');
+          }
         }
   
         if (response.data.isCriador && response.data.id_criador) {
@@ -256,43 +263,51 @@ const Perfil = () => {
         const headers = { Authorization: `Bearer ${token}` };
         setLoading(true);
   
-        let updatedFotoUrl = fotoUrl;
-  
         if (fotoFile) {
           const formData = new FormData();
           formData.append('file', fotoFile);
   
-          const uploadResponse = await axios.post('/file/foto-upload', formData, {
-            headers: {
-              ...headers,
-              'Content-Type': 'multipart/form-data'
-            }
-          });
+          try {
+            const uploadResponse = await axios.post('/file/foto-upload', formData, {
+              headers: {
+                ...headers,
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+
+            const fotoUrlAtualizada = uploadResponse.data.fotoUrl || uploadResponse.data;
+            setFotoUrl(fotoUrlAtualizada);
+            
+            await axios.put('/usuario/descricao', 
+              { 
+                descricao: descricaoUsuario,
+                fotoUrl: fotoUrlAtualizada
+              }, 
+              { headers }
+            );
   
-          updatedFotoUrl = `${uploadResponse.data.fotoUrl || uploadResponse.data.url}?${Date.now()}`;
+            setFotoPreviewUrl('');
+            setFotoFile(null);
+          } catch (uploadError) {
+            console.error('Erro no upload da foto:', uploadError);
+            throw uploadError;
+          }
+        } else {
+          await axios.put('/usuario/descricao', 
+            { 
+              descricao: descricaoUsuario,
+              fotoUrl: fotoUrl
+            }, 
+            { headers }
+          );
         }
-  
-        await axios.put('/usuario/descricao', 
-          { 
-            descricao: descricaoUsuario,
-            fotoUrl: updatedFotoUrl 
-          }, 
-          { headers }
-        );
-  
-        setFotoUrl(updatedFotoUrl);
-        setFotoPreviewUrl('');
-        setFotoFile(null);
-        
-        const userResponse = await axios.get('/auth/me', { headers });
-        setFotoUrl(userResponse.data.fotoUrl || updatedFotoUrl);
   
         setVideoSuccessMessage('Perfil atualizado com sucesso!');
         setShowVideoSuccessModal(true);
         setIsEditing(false);
       } catch (error) {
         console.error('Erro ao atualizar perfil:', error);
-        alert('Erro ao atualizar perfil: ' + (error.response?.data || 'Tente novamente.'));
+        alert('Erro ao atualizar perfil: ' + (error.response?.data?.message || 'Tente novamente.'));
       } finally {
         setLoading(false);
       }
@@ -305,9 +320,9 @@ const Perfil = () => {
     const file = e.target.files[0];
     if (!file) return;
   
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'];
     if (!validTypes.includes(file.type)) {
-      alert('Por favor, selecione uma imagem no formato JPEG ou PNG');
+      alert('Por favor, selecione uma imagem nos formatos: JPEG, PNG, JPG, GIF ou WEBP');
       return;
     }
   
@@ -320,7 +335,6 @@ const Perfil = () => {
     setFotoFile(file);
     setFotoPreviewUrl(URL.createObjectURL(file));
   };
-
   const aoClicarCancelarEdicao = () => {
     setDescricaoUsuario(originalDescricaoUsuario);
     setFotoFile(null);

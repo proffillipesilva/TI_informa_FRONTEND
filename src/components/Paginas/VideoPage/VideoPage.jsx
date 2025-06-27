@@ -231,16 +231,23 @@ const VideoPage = () => {
         }
 
         if (currentVideoData?.criador?.id) {
-          try {
-            const fotoResponse = await axios.get(`/file/foto-usuario?usuarioId=${currentVideoData.criador.usuarioId}`);
-            if (fotoResponse.data?.fotoUrl) {
-              setCreatorProfilePhoto(fotoResponse.data.fotoUrl);
-            } else {
-              setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
-            }
-          } catch (fotoError) {
-            console.error('Erro ao buscar foto do criador:', fotoError);
-            setCreatorProfilePhoto('https://st4.depositphotos.com/29453910/37778/v/450/depositphotos_377785374-stock-illustration-hand-drawn-modern-man-avatar.jpg');
+          if (currentVideoData.criador.fotoUrl) {
+            setCreatorProfilePhoto(currentVideoData.criador.fotoUrl);
+          } 
+          else {
+            const fotoPadrao = currentVideoData.criador.foto_url
+            
+            const img = new Image();
+            img.src = fotoPadrao;
+            img.onload = () => setCreatorProfilePhoto(fotoPadrao);
+            img.onerror = () => {
+              if (currentVideoData.thumbnail) {
+                setCreatorProfilePhoto(`https://tiinformafiec.s3.amazonaws.com/${currentVideoData.thumbnail}`);
+              } 
+              else {
+                setCreatorProfilePhoto('https://placehold.co/200x200?text=Criador');
+              }
+            };
           }
         }
 
