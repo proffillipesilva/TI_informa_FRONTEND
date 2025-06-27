@@ -40,8 +40,10 @@ html::-webkit-scrollbar {
 }
 
 .tituloCabecalho {
+  font-size: 34px;
   font-weight: bold;
   color: black;
+  margin-left: 1500px;
   caret-color: transparent;
 }
 
@@ -85,132 +87,278 @@ html::-webkit-scrollbar {
   background-color: #6B8BA4;
 }
 
-@media (max-width: 425px) {
-  .tituloCabecalho {
-    font-size: 18px;
-    margin-left: 10px;
+@media (min-width: 320px) and (max-width: 425px) {
+  .cabecalho {
+    height: 60px;
+    padding: 0 10px;
   }
+
+  .botaoMenu {
+    font-size: 20px;
+    padding: 10px;
+  }
+
+  .tituloCabecalho {
+    font-size: 20px;
+    margin-left: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
   .logo {
+    max-height: 50px;
     max-width: 25vw;
   }
+
 }
 
 @media (min-width: 426px) and (max-width: 480px) {
+  .cabecalho {
+    height: 65px;
+    padding: 0 15px;
+  }
+
+  .botaoMenu {
+    font-size: 22px;
+    padding: 12px;
+  }
+
   .tituloCabecalho {
-    font-size: 20px;
-    margin-left: 20px;
+    font-size: 24px;
+    margin-left: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
+
   .logo {
-    max-width: 23vw;
+    max-height: 55px;
+    max-width: 22vw;
   }
+
 }
 
 @media (min-width: 481px) and (max-width: 767px) {
+  .cabecalho {
+    height: 70px;
+    padding: 0 15px;
+  }
+
+  .botaoMenu {
+    font-size: 24px;
+    padding: 15px;
+  }
+
   .tituloCabecalho {
-    font-size: 22px;
-    margin-left: 30px;
+    font-size: 28px;
+    margin-left: 0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
   }
+
   .logo {
-    max-width: 22vw;
+    max-height: 60px;
+    max-width: 20vw;
   }
+
 }
 
 @media (min-width: 768px) and (max-width: 1023px) {
+  .cabecalho {
+    height: 80px;
+    padding: 0 20px;
+  }
+
+  .botaoMenu {
+    font-size: 26px;
+  }
+
   .tituloCabecalho {
-    font-size: 24px;
-    margin-left: 40px;
+    font-size: 30px;
+    margin-left: auto;
+    margin-right: auto;
   }
+
   .logo {
-    max-width: 20vw;
+    max-height: 70px;
+    max-width: 18vw;
   }
+
 }
 
 @media (min-width: 1024px) and (max-width: 1200px) {
+  .cabecalho {
+    height: 85px;
+    padding: 0 25px;
+  }
+
+  .botaoMenu {
+    font-size: 28px;
+  }
+
   .tituloCabecalho {
-    font-size: 26px;
-    margin-left: 50px;
+    font-size: 32px;
+    margin-left: 500px;
   }
+
   .logo {
-    max-width: 18vw;
+    max-height: 75px;
+    max-width: 15vw;
   }
+
 }
 
 @media (min-width: 1201px) and (max-width: 1440px) {
+  .cabecalho {
+    height: 90px;
+    padding: 0 30px;
+  }
+
+  .botaoMenu {
+    font-size: 30px;
+  }
+
   .tituloCabecalho {
-    font-size: 28px;
-    margin-left: 60px;
+    font-size: 36px;
+    margin-left: 800px;
   }
+
   .logo {
-    max-width: 16vw;
+    max-height: 80px;
+    max-width: 12vw;
   }
+
 }
 
 @media (min-width: 1441px) and (max-width: 1619px) {
-  .tituloCabecalho {
-    font-size: 30px;
-    margin-left: 70px;
+  .cabecalho {
+    height: 95px;
+    padding: 0 35px;
   }
-  .logo {
-    max-width: 15vw;
-  }
-}
 
-@media (min-width: 1920px) {
+  .botaoMenu {
+    font-size: 32px;
+  }
+
   .tituloCabecalho {
-    font-size: 34px;
-    margin-left: 80px;
+    font-size: 38px;
+    margin-left: 1000px;
   }
+
   .logo {
-    max-width: 14vw;
+    max-height: 85px;
+    max-width: 10vw;
   }
+
 }
 
 @media (min-width: 1921px) and (max-width: 2560px) {
-  .tituloCabecalho {
+  .cabecalho {
+    height: 100px;
+    padding: 0 40px;
+  }
+
+  .botaoMenu {
     font-size: 36px;
-    margin-left: 100px;
   }
+
+  .tituloCabecalho {
+    font-size: 44px;
+    margin-left: 1700px;
+  }
+
   .logo {
-    max-width: 12vw;
+    max-height: 90px;
+    max-width: 8vw;
   }
+
 }
 
 @media (min-width: 2561px) and (max-width: 3840px) {
+  .cabecalho {
+    height: 120px;
+    padding: 0 50px;
+  }
+
+  .botaoMenu {
+    font-size: 44px;
+  }
+
   .tituloCabecalho {
-    font-size: 40px;
-    margin-left: 120px;
+    font-size: 56px;
+    margin-left: 2500px;
   }
+
   .logo {
-    max-width: 10vw;
+    max-height: 110px;
+    max-width: 7vw;
   }
+
 }
 
 @media (min-width: 3841px) and (max-width: 5120px) {
+  .cabecalho {
+    height: 150px;
+    padding: 0 60px;
+  }
+
+  .botaoMenu {
+    font-size: 56px;
+  }
+
   .tituloCabecalho {
-    font-size: 44px;
-    margin-left: 150px;
+    font-size: 72px;
+    margin-left: 3500px;
   }
+
   .logo {
-    max-width: 8vw;
+    max-height: 140px;
+    max-width: 6vw;
   }
+
 }
 
 @media (min-width: 5121px) and (max-width: 7680px) {
+  .cabecalho {
+    height: 200px;
+    padding: 0 70px;
+  }
+
+  .botaoMenu {
+    font-size: 72px;
+  }
+
   .tituloCabecalho {
-    font-size: 48px;
-    margin-left: 180px;
+    font-size: 96px;
+    margin-left: 5000px;
   }
+
   .logo {
-    max-width: 6vw;
+    max-height: 180px;
+    max-width: 5vw;
   }
+
 }
 
 @media (min-width: 7681px) {
-  .tituloCabecalho {
-    font-size: 52px;
-    margin-left: 200px;
+  .cabecalho {
+    height: 250px;
+    padding: 0 80px;
   }
+
+  .botaoMenu {
+    font-size: 96px;
+  }
+
+  .tituloCabecalho {
+    font-size: 120px;
+    margin-left: 7000px;
+  }
+
   .logo {
-    max-width: 5vw;
+    max-height: 220px;
+    max-width: 4vw;
   }
 }
